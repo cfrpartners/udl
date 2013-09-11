@@ -11,15 +11,14 @@ from codeintel2.udl import UDLLexer, UDLBuffer, UDLCILEDriver, XMLParsingBufferM
 from koXMLDatasetInfo import getService
 
 
-
 lang = "MXML"
 log = logging.getLogger("codeintel.mxml")
-#log.setLevel(logging.DEBUG)
-
+# log.setLevel(logging.DEBUG)
 
 
 class MXMLLexer(UDLLexer):
     lang = lang
+
 
 class MXMLBuffer(UDLBuffer, XMLParsingBufferMixin):
     lang = lang
@@ -30,13 +29,14 @@ class MXMLBuffer(UDLBuffer, XMLParsingBufferMixin):
     cpln_stop_chars = ">'\" "
 
     def xml_default_dataset_info(self, node):
-        #print "%s node %r" % (self.lang, node)
+        # print "%s node %r" % (self.lang, node)
         log.debug("%s node %r", self.lang, node)
         tree = self.xml_tree
         if node is not None and not tree.namespace(node):
             # Do we have an output element, if so, figure out if we're html.
             # Cheap way to get the output element.
-            output = tree.tags.get(tree.namespace(tree.root), {}).get('output', None)
+            output = tree.tags.get(tree.namespace(
+                tree.root), {}).get('output', None)
             if output is not None:
                 lang = output.attrib.get('method').upper()
                 publicId = output.attrib.get('doctype-public')
@@ -50,14 +50,12 @@ class MXMLBuffer(UDLBuffer, XMLParsingBufferMixin):
                         None,
                         datasetSvc.getDefaultNamespace(lang, self.env)
                     )
-                #print "get output type %r" % (default_dataset_info,)
+                # print "get output type %r" % (default_dataset_info,)
                 return default_dataset_info
         return XMLParsingBufferMixin.xml_default_dataset_info(self, node)
 
 
-
 #---- registration
-
 def register(mgr):
     """Register language support with the Manager."""
     mgr.set_lang_info(lang,
@@ -66,4 +64,3 @@ def register(mgr):
                       import_handler_class=None,
                       cile_driver_class=None,
                       is_cpln_lang=True)
-

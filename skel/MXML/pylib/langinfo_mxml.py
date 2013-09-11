@@ -17,8 +17,10 @@ log = logging.getLogger("codeintel.MXML")
 
 #---- language support
 
+
 class MXMLLexer(UDLLexer):
     lang = lang
+
 
 class MXMLBuffer(UDLBuffer, XMLParsingBufferMixin):
     lang = lang
@@ -31,12 +33,13 @@ class MXMLBuffer(UDLBuffer, XMLParsingBufferMixin):
     def xml_parse(self):
         log.debug(">> MXMLBuffer.xml_parse")
         from koXMLTreeService import getService
-        text = self.accessor.text.replace("<![CDATA[", "         ").replace("]]>", "   ")
+        text = self.accessor.text.replace(
+            "<![CDATA[", "         ").replace("]]>", "   ")
         self._xml_tree_cache = getService().getTreeForURI(self.path, text)
-    
+
     def _mxml_default_dataset_info(self, node):
         log.debug(">> MXMLBuffer._mxml_default_dataset_info")
-        #print "%s node %r" % (buf.lang, node)
+        # print "%s node %r" % (buf.lang, node)
         tree = self.xml_tree
         parent = node
         while parent is not None:
@@ -64,11 +67,14 @@ class MXMLBuffer(UDLBuffer, XMLParsingBufferMixin):
 # This gives global window completions but does not produce cile
 # information, so completions for local variables and functions will
 # not work.
+
+
 class MXMLCILEDriver(UDLCILEDriver):
     lang = lang
     csl_lang = "JavaScript"
 
 #---- registration
+
 
 def register(mgr):
     """Register language support with the Manager."""

@@ -1,25 +1,25 @@
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -31,7 +31,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 # Komodo XBL language service.
@@ -46,7 +46,7 @@ from koXMLLanguageBase import koXMLLanguageBase
 from koLintResults import koLintResults
 
 log = logging.getLogger("koXBLLanguage")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 
 def registerLanguage(registry):
@@ -94,7 +94,7 @@ class KoXBLLanguage(koXMLLanguageBase):
         document.getAnonymousNodes(this)[0].childNodes[1].childNodes[1]
                 .setAttribute("value",(this.page+1)+" of "+totalpages);
       </constructor>
-  
+
       <property name="page"
             onget="return parseInt(document.getAnonymousNodes(this)[0].childNodes[0].getAttribute('selectedIndex'));"
             onset="return this.setPage(val);"/>
@@ -104,24 +104,27 @@ class KoXBLLanguage(koXMLLanguageBase):
 </bindings>
 """
 
+
 class KoXBLCompileLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Komodo XBL Compile Linter"
     _reg_clsid_ = "{4e023df3-4fda-4c74-abe0-b6623d72862e}"
     _reg_contractid_ = "@activestate.com/koLinter?language=XBL;1"
     _reg_categories_ = [
-         ("category-komodo-linter", 'XBL'),
-         ]
+        ("category-komodo-linter", 'XBL'),
+    ]
 
     def __init__(self):
-        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
+        koLintService = components.classes["@activestate.com/koLintService;1"].getService(
+            components.interfaces.koILintService)
         self._html_linter = koLintService.getLinterForLanguage("HTML")
-        self._js_linter = UnwrapObject(koLintService.getLinterForLanguage("JavaScript"))
+        self._js_linter = UnwrapObject(
+            koLintService.getLinterForLanguage("JavaScript"))
 
     def lint(self, request):
         try:
             return UnwrapObject(self._html_linter).lint(request,
-                                                        linters={"JavaScript":self})
+                                                        linters={"JavaScript": self})
         except:
             log.exception("Error linting XBL")
 
@@ -129,9 +132,9 @@ class KoXBLCompileLinter(object):
     # so wrap the JSLinter, and filter out results complaining
     # about return stmts outside functions.
     def lint_with_text(self, request, text):
-        #log.debug("XBL text: %s", text)
+        # log.debug("XBL text: %s", text)
         jsResults = self._js_linter.lint_with_text(request, text)
-        #log.debug("XBL lint results: %s",
+        # log.debug("XBL lint results: %s",
         #          [str(x) for x in jsResults.getResults()])
         fixedResults = koLintResults()
         for res in jsResults.getResults():

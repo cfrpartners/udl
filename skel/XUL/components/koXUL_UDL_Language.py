@@ -1,25 +1,25 @@
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -31,7 +31,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 # Komodo XUL language service.
@@ -44,7 +44,7 @@ from koXMLLanguageBase import koXMLLanguageBase, KoGenericXMLLinter
 
 
 log = logging.getLogger("koXULLanguage")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 
 def registerLanguage(registry):
@@ -64,15 +64,17 @@ class KoXULLanguage(koXMLLanguageBase):
     lang_from_udl_family = {'CSL': 'JavaScript', 'M': 'XML'}
 
     publicIdList = ["-//MOZILLA//DTD XUL V1.0//EN"]
-    systemIdList = ["http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"]
-    namespaces = ["http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"]
+    systemIdList = [
+        "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"]
+    namespaces = [
+        "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"]
 
     searchURL = "http://www.google.com/search?q=site%3Ahttp%3A%2F%2Fdeveloper.mozilla.org%2Fen%2Fdocs%2FXUL+%W"
 
     sample = """<window title="Hello World!"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   width="250"
-  height="200"> 
+  height="200">
 
   <hbox flex="1" align="center">
     <image src="mozilla-big.gif" />
@@ -81,10 +83,11 @@ class KoXULLanguage(koXMLLanguageBase):
 </window>
 """
 
+
 class KoXULCompileLinter(KoGenericXMLLinter):
     _reg_desc_ = "Komodo XUL Compile Linter"
     _reg_clsid_ = "{c097c54e-847b-42aa-81c0-3de0a71bcd08}"
     _reg_contractid_ = "@activestate.com/koLinter?language=XUL;1"
     _reg_categories_ = [
-         ("category-komodo-linter", 'XUL'),
-         ]
+        ("category-komodo-linter", 'XUL'),
+    ]

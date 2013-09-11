@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 r"""A command-line interface for managing UDL (User-Defined Language)
@@ -48,17 +48,18 @@ from glob import glob
 from pprint import pprint
 import webbrowser
 
+
 def _set_lib_path():
     if exists(join(dirname(__file__), "ludditelib")):  # dev layout
         pass
-    else: # install layout (in Komodo SDK)
+    else:  # install layout (in Komodo SDK)
         sys.path.insert(0, join(dirname(dirname(abspath(__file__))), "pylib"))
 _set_lib_path()
 
 from ludditelib import cmdln
 from ludditelib import parser, gen, constants, commands
 from ludditelib.common import LudditeError, __version__, \
-                              guid_pat, norm_guid, generate_guid
+    guid_pat, norm_guid, generate_guid
 
 
 log = logging.getLogger("luddite")
@@ -79,31 +80,31 @@ class Shell(cmdln.Cmdln):
     However, as of Komodo 4, you can define custom lexers for languages that
     Komodo doesn't support out of the box. This system is called UDL -- for
     User-Defined Languages.
-    
+
     Luddite is a tool for building and packaging a Komodo language
     extension. The typical process is:
-    
+
     1. Use the 'koext' tool (also part of the Komodo SDK) to start a Komodo
        extension source tree and create stub files for a new Komodo language.
-       
+
             koext startext fuzzy_language
             cd fuzzy_language/
             koext startlang fuzzy
-    
+
     2. Author the 'udl/LANG-mainlex.udl' file defining syntax highlighting
        rules for your language and the 'components/koFuzzy_UDL_Language.py'
        language service as appropriate.
-       
+
        The 'luddite lex' and 'luddite lexhtml' commands can help you debug
        your .udl code.
 
     3. Build the extension. 'koext' knows how to compile your UDL code into
        the '.lexres' files that Komodo uses at runtime.
-    
+
             koext build
 
     4. Upload and announce your new extension on Komodo's add-ons site:
-    
+
             http://community.activestate.com/addons
 
     For more information on writing .udl files see Komodo's UDL
@@ -127,7 +128,7 @@ class Shell(cmdln.Cmdln):
                           help="quieter output")
         parser.set_defaults(log_level=logging.INFO)
         return parser
-    
+
     def postoptparse(self):
         global log
         log.setLevel(self.options.log_level)
@@ -139,7 +140,7 @@ class Shell(cmdln.Cmdln):
                   help="extra dirs to search for include'd UDL files")
     def do_just_compile(self, subcmd, opts, udl_path):
         """${cmd_name}: compile a .udl file into a .lexres file
-        
+
         ${cmd_usage}
         ${cmd_option_list}
         Note: This is a replacement for the deprecated `luddite compile'. In
@@ -151,7 +152,7 @@ class Shell(cmdln.Cmdln):
 
     @cmdln.option("--ext",
                   help="specify a default file extension for this language")
-    @cmdln.option("-g", "--guid", 
+    @cmdln.option("-g", "--guid",
                   help="specify an XPCOM component GUID to use, or a path "
                        "to GUIDs text file")
     @cmdln.option("-G", dest="new_guid", action="store_true",
@@ -165,10 +166,10 @@ class Shell(cmdln.Cmdln):
     @cmdln.alias("compile")
     def do_deprecated_compile(self, subcmd, opts, udl_path):
         """${cmd_name}: compile a .udl file into lang resources
-        
+
         Note: This has been deprecated in favour of `luddite just_compile'
         and the more generic functionality of the 'koext' tool.
-        
+
         ${cmd_usage}
         ${cmd_option_list}
         If you specify '--skel' to build a skeleton Language Service
@@ -204,10 +205,12 @@ class Shell(cmdln.Cmdln):
                 if not exists(opts.guid):
                     raise LudditeError("`%s' is not a GUID and does not "
                                        "exist" % opts.guid)
-                guid_from_lang = {} #dict((lang, g) for lang, g in)
+                guid_from_lang = {}  # dict((lang, g) for lang, g in)
                 for line in file(opts.guid):
-                    if line.startswith("#"): continue
-                    if not line.strip(): continue
+                    if line.startswith("#"):
+                        continue
+                    if not line.strip():
+                        continue
                     lang, g = line.strip().split(None, 1)
                     guid_from_lang[lang] = norm_guid(g)
         else:
@@ -216,13 +219,13 @@ class Shell(cmdln.Cmdln):
             raise LudditeError("cannot specify both -f|--force and "
                                "--add-missing options at the same time")
         return commands.deprecated_compile(
-            udl_path, skel=opts.skel, guid=guid, 
+            udl_path, skel=opts.skel, guid=guid,
             guid_from_lang=guid_from_lang, ext=opts.ext,
             force=opts.force, add_missing=opts.add_missing, log=log)
 
     def _do_parse(self, subcmd, opts, *udl_paths):
         """${cmd_name}: parse the given .udl file (for debugging)
-        
+
         ${cmd_usage}
         ${cmd_option_list}
         """
@@ -256,7 +259,7 @@ class Shell(cmdln.Cmdln):
 
         Typical usage should specify the "creator" and "version". The other
         values have reasonable defaults. For example:
-        
+
             ${name} package -c "Santa Claus" --version "2.0.1" Toy
             ${name} package -c "Larry Wall" --version "0.8.0" Perl
 
@@ -319,16 +322,14 @@ class Shell(cmdln.Cmdln):
                                    "for output")
             import webbrowser
             url = _url_from_local_path(output_path)
-            webbrowser.open_new(url)            
-
+            webbrowser.open_new(url)
 
 
 #---- internal support stuff
-
 # Recipe: pretty_logging (0.1) in C:\trentm\tm\recipes\cookbook
 class _PerLevelFormatter(logging.Formatter):
     """Allow multiple format string -- depending on the log level.
-    
+
     A "fmtFromLevel" optional arg is added to the constructor. It can be
     a dictionary mapping a log record level to a format string. The
     usual "fmt" argument acts as the default.
@@ -339,10 +340,11 @@ class _PerLevelFormatter(logging.Formatter):
             self.fmtFromLevel = {}
         else:
             self.fmtFromLevel = fmtFromLevel
+
     def format(self, record):
         record.levelname = record.levelname.lower()
         if record.levelno in self.fmtFromLevel:
-            #XXX This is a non-threadsafe HACK. Really the base Formatter
+            # XXX This is a non-threadsafe HACK. Really the base Formatter
             #    class should provide a hook accessor for the _fmt
             #    attribute. *Could* add a lock guard here (overkill?).
             _saved_fmt = self._fmt
@@ -354,6 +356,7 @@ class _PerLevelFormatter(logging.Formatter):
         else:
             return logging.Formatter.format(self, record)
 
+
 def _setup_logging():
     hdlr = logging.StreamHandler()
     defaultFmt = "%(name)s: %(levelname)s: %(message)s"
@@ -363,7 +366,7 @@ def _setup_logging():
     hdlr.setFormatter(fmtr)
     logging.root.addHandler(hdlr)
     log.setLevel(logging.INFO)
-    #log.setLevel(logging.DEBUG)
+    # log.setLevel(logging.DEBUG)
 
 
 def _url_from_local_path(local_path):
@@ -377,11 +380,9 @@ def _url_from_local_path(local_path):
     return url
 
 
-
 #---- mainline
-
 if __name__ == "__main__":
-    _setup_logging() # defined in recipe:pretty_logging
+    _setup_logging()  # defined in recipe:pretty_logging
     try:
         shell = Shell()
         retval = shell.main(sys.argv)
@@ -400,5 +401,3 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         sys.exit(retval)
-
-

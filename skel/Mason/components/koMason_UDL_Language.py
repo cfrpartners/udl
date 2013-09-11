@@ -1,25 +1,25 @@
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -31,7 +31,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 # Komodo Mason language service.
@@ -51,7 +51,7 @@ from koLintResults import koLintResults
 import scimozindent
 
 log = logging.getLogger("koMasonLanguage")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 
 def registerLanguage(registry):
@@ -69,7 +69,8 @@ class KoMasonLanguage(koHTMLLanguageBase):
     defaultExtension = '.mason.html'
     searchURL = "http://masonhq.com"
 
-    lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'Mason', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Perl'}
+    lang_from_udl_family = {
+        'CSL': 'JavaScript', 'TPL': 'Mason', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Perl'}
 
     samples = """
 <html>
@@ -78,11 +79,11 @@ class KoMasonLanguage(koHTMLLanguageBase):
   use Date::Format;
   my $date_fmt = "%A, %B %d, %Y  %I:%M %p";
   </%class>
-  
+
   <%args>
   $.article => (required => 1)
   </%args>
-  
+
   <div class="article">
     <h3><% $.article->title %></h3>
     <h4><% time2str($date_fmt, $.article->create_time) %></h4>
@@ -94,7 +95,8 @@ class KoMasonLanguage(koHTMLLanguageBase):
 
     def __init__(self):
         koHTMLLanguageBase.__init__(self)
-        self.matchingSoftChars[" "] = ("%", self.softchar_accept_bracket_percent_space)
+        self.matchingSoftChars[" "] = (
+            "%", self.softchar_accept_bracket_percent_space)
 
     def softchar_accept_bracket_percent_space(self, scimoz, pos, style_info, candidate):
         """Look for |<%_, where these three chars are styled to indicate
@@ -102,18 +104,19 @@ class KoMasonLanguage(koHTMLLanguageBase):
         """
         return self.softchar_accept_styled_chars(
             scimoz, pos, style_info, candidate,
-            {'curr_style' : scimoz.SCE_UDL_TPL_DEFAULT,
-             'styled_chars' : [
-                    (scimoz.SCE_UDL_TPL_OPERATOR, ord("%")),
-                    (scimoz.SCE_UDL_TPL_OPERATOR, ord("<"))
-                ]
-            })
+            {'curr_style': scimoz.SCE_UDL_TPL_DEFAULT,
+             'styled_chars': [
+                 (scimoz.SCE_UDL_TPL_OPERATOR, ord("%")),
+                 (scimoz.SCE_UDL_TPL_OPERATOR, ord("<"))
+             ]
+             })
 
     def computeIndent(self, scimoz, indentStyle, continueComments):
         return self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
 
     def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
-        res = self._doIndentHere(scimoz, indentStyle, continueComments, style_info)
+        res = self._doIndentHere(
+            scimoz, indentStyle, continueComments, style_info)
         if res is None:
             return koHTMLLanguageBase.computeIndent(self, scimoz, indentStyle, continueComments)
         return res
@@ -125,6 +128,7 @@ class KoMasonLanguage(koHTMLLanguageBase):
         return res
 
     _startWords = "init perl args".split(" ")
+
     def _doIndentHere(self, scimoz, indentStyle, continueComments, style_info):
         # Returns either None or an indent string
         pos = scimoz.positionBefore(scimoz.currentPos)
@@ -139,7 +143,8 @@ class KoMasonLanguage(koHTMLLanguageBase):
         lineStartPos = scimoz.positionFromLine(curLineNo)
         delta, numTags = self._getTagDiffDelta(scimoz, lineStartPos, startPos)
         if delta < 0 and numTags == 1 and curLineNo > 0:
-            didDedent, dedentAmt = self.dedentThisLine(scimoz, curLineNo, startPos)
+            didDedent, dedentAmt = self.dedentThisLine(
+                scimoz, curLineNo, startPos)
             if didDedent:
                 return dedentAmt
             else:
@@ -208,12 +213,14 @@ class KoMasonLanguage(koHTMLLanguageBase):
         lineStartPos = scimoz.positionFromLine(curLineNo)
         delta, numTags = self._getTagDiffDelta(scimoz, lineStartPos, startPos)
         if delta < 0 and numTags == 1 and curLineNo > 0:
-            didDedent, dedentAmt = self.dedentThisLine(scimoz, curLineNo, startPos)
+            didDedent, dedentAmt = self.dedentThisLine(
+                scimoz, curLineNo, startPos)
             if didDedent:
                 return dedentAmt
         # Assume the tag's indent level is fine, so don't let the
         # HTML auto-indenter botch things up.
         return self._getRawIndentForLine(scimoz, curLineNo)
+
 
 class KoMasonLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
@@ -224,18 +231,20 @@ class KoMasonLinter(object):
         ("category-komodo-linter", 'Mason'),
     ]
 
-
     def __init__(self):
-        self._koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
+        self._koLintService = components.classes[
+            "@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
         self._perl_linter = None
-        self._html_linter = UnwrapObject(self._koLintService.getLinterForLanguage("HTML"))
-        
+        self._html_linter = UnwrapObject(
+            self._koLintService.getLinterForLanguage("HTML"))
+
     @property
     def perl_linter(self):
         if self._perl_linter is None:
-            self._perl_linter = UnwrapObject(self._koLintService.getLinterForLanguage("Perl"))
+            self._perl_linter = UnwrapObject(
+                self._koLintService.getLinterForLanguage("Perl"))
         return self._perl_linter
-    
+
     _masonMatcher = re.compile(r'''(
                                 (?:</?%\w+\s*.*?>)
         |(?:<%\s+.*?%>)   # Anything in <%...%>
@@ -244,7 +253,7 @@ class KoMasonLinter(object):
         |(?:<&.*?&>)
         |[^<%\n]+ # Most other non-Perl
         |.)''',                  # Catchall
-                                re.MULTILINE|re.VERBOSE|re.DOTALL)
+                               re.MULTILINE | re.VERBOSE | re.DOTALL)
 
     _blockTagRE = re.compile(r'<(/?)%(\w+).*?>')
     _exprRE = re.compile(r'(<%\s*)(.*?)(%>)', re.DOTALL)
@@ -259,10 +268,10 @@ class KoMasonLinter(object):
         perlTextParts = []
         masonLintResults = []
         eols = ("\n", "\r\n")
-        
+
         # states
         currTags = []
-        perlTags = ('init', 'perl', 'once') # drop code for other tags.
+        perlTags = ('init', 'perl', 'once')  # drop code for other tags.
         lineNo = i
         while i < lim:
             part = parts[i]
@@ -286,7 +295,8 @@ class KoMasonLinter(object):
                             if currTag == payload:
                                 currTags.pop()
                             else:
-                                # Recover by removing everything up to and including the tag
+                                # Recover by removing everything up to and
+                                # including the tag
                                 unexpectedEndTag = currTags[-1]
                                 for idx in range(len(currTags) - 1, -1, -1):
                                     if currTags[idx] == payload:
@@ -315,16 +325,19 @@ class KoMasonLinter(object):
                     if not m:
                         perlTextParts.append(self._spaceOutNonNewlines(part))
                     else:
-                        perlTextParts.append(self._spaceOutNonNewlines(m.group(1)))
+                        perlTextParts.append(
+                            self._spaceOutNonNewlines(m.group(1)))
                         payload = m.group(2)
                         if payload.startswith("#"):
-                            perlTextParts.append(payload) # One big comment
+                            perlTextParts.append(payload)  # One big comment
                         elif "|" not in payload:
-                            perlTextParts.append("print " + payload + ";");
+                            perlTextParts.append("print " + payload + ";")
                         else:
                             # Filters aren't perl syntax, so punt
-                            perlTextParts.append(self._spaceOutNonNewlines(m.group(2)))
-                        perlTextParts.append(self._spaceOutNonNewlines(m.group(3)))
+                            perlTextParts.append(
+                                self._spaceOutNonNewlines(m.group(2)))
+                        perlTextParts.append(
+                            self._spaceOutNonNewlines(m.group(3)))
             else:
                 # We only copy things out under certain circumstances
                 if not currTags or currTags[-1] not in perlTags:
@@ -334,12 +347,14 @@ class KoMasonLinter(object):
             i += 1
             lineNo += part.count("\n")
         return "".join(perlTextParts), masonLintResults
-        
+
     _nonNewlineMatcher = re.compile(r'[^\r\n]')
+
     def _spaceOutNonNewlines(self, markup):
         return self._nonNewlineMatcher.sub(' ', markup)
 
     _markupMatcher = re.compile(r'\A<%(#|={0,2})(.*?)(=?)(?:%>)?\Z', re.DOTALL)
+
     def _fixTemplateMarkup(self, markup):
         m = self._markupMatcher.match(markup)
         if not m:
@@ -356,17 +371,20 @@ class KoMasonLinter(object):
             finalText += payload + ";"
         return finalText
 
-    _tplPatterns = ("Mason", re.compile('<%'), re.compile(r'%>\s*\Z', re.DOTALL))
+    _tplPatterns = ("Mason", re.compile(
+        '<%'), re.compile(r'%>\s*\Z', re.DOTALL))
+
     def lint(self, request):
-        return self._html_linter.lint(request, udlMapping={"Perl":"Mason"},
-                                                    TPLInfo=self._tplPatterns)
+        return self._html_linter.lint(request, udlMapping={"Perl": "Mason"},
+                                      TPLInfo=self._tplPatterns)
 
     def lint_with_text(self, request, text):
         perlText, masonLintResults = self._fixPerlPart(text)
         if not perlText.strip():
             return
-        perlLintResults = self._resetLines(self.perl_linter.lint_with_text(request, perlText),
-                                            text)
+        perlLintResults = self._resetLines(
+            self.perl_linter.lint_with_text(request, perlText),
+            text)
         for lr in masonLintResults:
             perlLintResults.addResult(lr)
         return perlLintResults
@@ -378,8 +396,9 @@ class KoMasonLinter(object):
             try:
                 targetLine = lines[res.lineEnd - 1]
             except IndexError:
-                log.exception("can't index %d lines at %d", len(lines), res.lineEnd - 1)
-                pass # Keep the original lintResult
+                log.exception("can't index %d lines at %d", len(
+                    lines), res.lineEnd - 1)
+                pass  # Keep the original lintResult
             else:
                 if res.columnEnd > len(targetLine):
                     res.columnEnd = len(targetLine)

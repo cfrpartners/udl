@@ -1,6 +1,7 @@
 # Registers the EJS.text language in Komodo.
 
-import re, sys
+import re
+import sys
 import logging
 from xpcom import components
 from xpcom.server import UnwrapObject
@@ -9,11 +10,13 @@ from koLintResults import koLintResults
 from koLintResult import createAddResult, SEV_ERROR
 
 log = logging.getLogger("komodoSnippetLanguage")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
+
 
 def registerLanguage(registry):
     log.debug("Registering language komodoSnippet")
     registry.registerLanguage(komodoSnippetLanguage())
+
 
 class komodoSnippetLanguage(KoUDLLanguage):
 
@@ -31,10 +34,10 @@ class komodoSnippetLanguage(KoUDLLanguage):
 
     commentDelimiterInfo = {
         "block": [
-                ('<%#', '%>')   # Pascal-style block comments
-                ],
+        ('<%#', '%>')   # Pascal-style block comments
+        ],
     }
-    
+
     supportsSmartIndent = "brace"
     lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'EJS', 'M': 'HTML'}
 
@@ -49,6 +52,8 @@ end
   throw new ko.snippets.RejectedSnippet("not at start of line");
    } %>
     """
+
+
 class KoKomodoSnippetLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "EJS Template Linter"
@@ -59,14 +64,15 @@ class KoKomodoSnippetLinter(object):
     ]
 
     def __init__(self):
-        self._jsLinter = UnwrapObject(components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService).getLinterForLanguage("JavaScript"))
-    
+        self._jsLinter = UnwrapObject(components.classes["@activestate.com/koLintService;1"].getService(
+            components.interfaces.koILintService).getLinterForLanguage("JavaScript"))
+
     def lint(self, request):
         return self.lint_with_text(request, request.content)
 
     def _escapeVerbatimLine(self, s):
         return s.replace('\\', '\\\\').replace("'", "\\'")
-    
+
     def _addVerbatimPieces(self, finalPieces, s):
         for line in s.splitlines(True):
             lead = line.splitlines()[0]
@@ -87,7 +93,7 @@ class KoKomodoSnippetLinter(object):
 
     def _addEmittedPieces(self, finalPieces, s):
         finalPieces.append("__ViewO.push(%s);" % (s))
-        #for line in s.splitlines():
+        # for line in s.splitlines():
         #   finalPieces.append("__ViewO.push(%s);\n" % (line,))
 
     # states:
@@ -96,6 +102,7 @@ class KoKomodoSnippetLinter(object):
     # 2: control JS
     # 3: EJS comment block
     _dot_to_space_re = re.compile(r'[^\r\n]')
+
     def lint_with_text(self, request, text):
         # Pull out the EJS parts and wrap into a single JS file
         textAsBytes = text.encode("utf-8")
@@ -125,7 +132,7 @@ class KoKomodoSnippetLinter(object):
                     elif c == '#':
                         haveJS = True
                     elif c == '%':
-                        pass # stay at state 0
+                        pass  # stay at state 0
                     else:
                         raise IndexError()
                     i = idx + 3
@@ -155,7 +162,8 @@ class KoKomodoSnippetLinter(object):
                     finalPieces.append(self._dot_to_space_re.sub(' ', thisBit))
                 finalPieces.append("  ")
                 if idx == -1:
-                    createAddResult(results, textLines, SEV_ERROR, lineNum, "Missing closing '%>'")
+                    createAddResult(
+                        results, textLines, SEV_ERROR, lineNum, "Missing closing '%>'")
                     break
                 i = idx + 2
                 state = 0

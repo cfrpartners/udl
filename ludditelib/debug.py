@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Support for generating representations of lexed text for debugging."""
@@ -47,6 +47,7 @@ import logging
 from pprint import pprint
 
 from ludditelib.common import is_source_tree_layout
+
 
 def _add_libs():
     """Get a SilverCity build on sys.path.
@@ -69,18 +70,18 @@ def _add_libs():
                       "build", "lib.*"))[0],
             join(ko_dev_dir, "src", "schemes"),
         ]
-    else: # in SDK
+    else:  # in SDK
         dist_dir = dirname(dirname(dirname(
             dirname(dirname(abspath(__file__))))))
-        if exists(join(dist_dir, "bin", "is_dev_tree.txt")): # in a dev build
+        if exists(join(dist_dir, "bin", "is_dev_tree.txt")):  # in a dev build
             # from: $mozObjDir/dist/komodo-bits/sdk/pylib/ludditelib/debug.py
             # to:   $mozObjDir/dist/bin/python/komodo
             lib_dirs = [join(dist_dir, "bin", "python", "komodo")]
-        elif sys.platform == "darwin": # in a Komodo install on Mac OS X
+        elif sys.platform == "darwin":  # in a Komodo install on Mac OS X
             # from: Contents/SharedSupport/sdk/pylib/ludditelib/debug.py
             # to:   Contents/MacOS/python/komodo
             lib_dirs = [join(dist_dir, "MacOS", "python", "komodo")]
-        else: # in a Komodo install on Windows or Linux
+        else:  # in a Komodo install on Windows or Linux
             # from: lib/sdk/pylib/ludditelib/debug.py
             # to:   lib/mozilla/python/komodo
             lib_dirs = [join(dist_dir, "lib", "mozilla", "python", "komodo")]
@@ -94,22 +95,18 @@ from SilverCity import ScintillaConstants
 from SilverCity.Lexer import Lexer
 
 
-
 #---- globals
-
 log = logging.getLogger("luddite.debug")
 
 
-
 #---- public routines
-
 def lex(content, lang):
     """Lex the given content and lang and print a summary to stdout."""
     lexer = UDLLexer(lang)
     accessor = SilverCityAccessor(lexer, content)
     out = sys.stdout.write
     for token in accessor.gen_tokens():
-        #pprint(token)
+        # pprint(token)
         out("token %(start_line)d,%(start_column)d"
             "-%(end_line)d,%(end_column)d"
             " (chars %(start_index)d-%(end_index)d):" % token)
@@ -121,7 +118,7 @@ def lex(content, lang):
 def lex_to_html(content, lang, include_styling=True, include_html=True,
                 title=None):
     """Return a styled HTML snippet for the given content and language.
-    
+
         "include_styling" (optional, default True) is a boolean
             indicating if the CSS/JS/informational-HTML should be
             included.
@@ -197,9 +194,8 @@ div.code .tags        { color: red; }
 <div id="infobox"></div>
 ''')
 
-    #XXX escape lang name for CSS class
+    # XXX escape lang name for CSS class
     html.write('<div class="code %s">\n' % lang.lower())
-
 
     lexer = UDLLexer(lang)
     accessor = SilverCityAccessor(lexer, content)
@@ -222,7 +218,7 @@ div.code .tags        { color: red; }
             if ch == "\n" and last_ch == "\r":
                 # Treat '\r\n' as one char.
                 continue
-            #TODO: tab expansion.
+            # TODO: tab expansion.
             html.write(_htmlescape(ch, quote=True, whitespace=True))
             last_ch = ch
         html.write('</span>')
@@ -239,15 +235,14 @@ div.code .tags        { color: red; }
     return html.getvalue()
 
 
-
 #---- internal Lexer stuff (mostly from codeintel)
-
 # Lazily built cache of SCE_* style number (per language) to constant name.
 _style_name_from_style_num_from_lang = {}
 _sce_prefixes = ["SCE_UDL_"]
 
+
 def _style_names_from_style_num(style_num):
-    #XXX Would like to have python-foo instead of p_foo or SCE_P_FOO, but
+    # XXX Would like to have python-foo instead of p_foo or SCE_P_FOO, but
     #    that requires a more comprehensive solution for all langs and
     #    multi-langs.
     style_names = []
@@ -263,7 +258,7 @@ def _style_names_from_style_num(style_num):
         name_from_num = _style_name_from_style_num_from_lang["UDL"]
     const_name = _style_name_from_style_num_from_lang["UDL"][style_num]
     style_names.append(const_name)
-    
+
     # Get a style group from styles.py.
     import styles
     if "UDL" in styles.StateMap:
@@ -274,15 +269,20 @@ def _style_names_from_style_num(style_num):
     else:
         log.warn("lang 'UDL' not in styles.StateMap: won't have "
                  "common style groups in HTML output")
-    
+
     return style_names
 
 
 _re_bad_filename_char = re.compile(r'([% 	\x80-\xff])')
+
+
 def _lexudl_path_escape(m):
     return '%%%02X' % ord(m.group(1))
+
+
 def _urlescape(s):
     return _re_bad_filename_char.sub(_lexudl_path_escape, s)
+
 
 class UDLLexer(Lexer):
     """LexUDL wants the path to the .lexres file as the first element of
@@ -291,9 +291,10 @@ class UDLLexer(Lexer):
     def __init__(self, lang):
         self.lang = lang
         self._properties = SilverCity.PropertySet()
-        self._lexer = SilverCity.find_lexer_module_by_id(ScintillaConstants.SCLEX_UDL)
+        self._lexer = SilverCity.find_lexer_module_by_id(
+            ScintillaConstants.SCLEX_UDL)
         lexres_path = _urlescape(self._get_lexres_path(lang))
-        #log.debug("escaped lexres_path: %r", lexres_path)
+        # log.debug("escaped lexres_path: %r", lexres_path)
         self._keyword_lists = [
             SilverCity.WordList(lexres_path),
         ]
@@ -329,9 +330,7 @@ class UDLLexer(Lexer):
                                % (lang, "', '".join(candidates)))
 
 
-
 #---- internal Accessor stuff (from codeintel)
-
 class Accessor(object):
     """Virtual base class for a lexed text accessor. This defines an API
     with which lexed text data (the text content, styling info, etc.) is
@@ -340,10 +339,13 @@ class Accessor(object):
     """
     def char_at_pos(self, pos):
         raise VirtualMethodError()
+
     def style_at_pos(self, pos):
         raise VirtualMethodError()
+
     def line_and_col_at_pos(self, pos):
         raise VirtualMethodError()
+
     def gen_char_and_style_back(self, start, stop):
         """Generate (char, style) tuples backward from start to stop
         a la range(start, stop, -1) -- i.e. exclusive at 'stop' index.
@@ -352,6 +354,7 @@ class Accessor(object):
         the naive usage of char_at_pos()/style_at_pos().
         """
         raise VirtualMethodError()
+
     def gen_char_and_style(self, start, stop):
         """Generate (char, style) tuples forward from start to stop
         a la range(start, stop) -- i.e. exclusive at 'stop' index.
@@ -360,26 +363,33 @@ class Accessor(object):
         the naive usage of char_at_pos()/style_at_pos().
         """
         raise VirtualMethodError()
+
     def match_at_pos(self, pos, s):
         """Return True if the given string matches the text at the given
         position.
         """
         raise VirtualMethodError()
+
     def line_from_pos(self, pos):
         """Return the 0-based line number for the given position."""
         raise VirtualMethodError()
+
     def line_start_pos_from_pos(self, pos):
         """Return the position of the start of the line of the given pos."""
         raise VirtualMethodError()
+
     def pos_from_line_and_col(self, line, col):
         """Return the position of the given line and column."""
         raise VirtualMethodError()
+
     @property
     def text(self):
         """All buffer content (as a unicode string)."""
         raise VirtualMethodError()
+
     def text_range(self, start, end):
         raise VirtualMethodError()
+
     def length(self):
         """Return the length of the buffer.
 
@@ -389,22 +399,24 @@ class Accessor(object):
         work as expected.
         """
         raise VirtualMethodError()
-    #def gen_pos_and_char_fwd(self, start_pos):
+    # def gen_pos_and_char_fwd(self, start_pos):
     #    """Generate (<pos>, <char>) tuples forward from the starting
     #    position until the end of the document.
-    #    
+    #
     #    Note that whether <pos> is a *character* pos or a *byte* pos is
     #    left fuzzy so that SilverCity and SciMoz implementations can be
     #    efficient.
     #    """
     #    raise VirtualMethodError()
+
     def gen_tokens(self):
         """Generator for all styled tokens in the buffer.
-        
+
         Currently this should yield token dict a la SilverCity's
         tokenize_by_style().
         """
         raise VirtualMethodError()
+
     def contiguous_style_range_from_pos(self, pos):
         """Returns a 2-tuple (start, end) giving the span of the sequence of
         characters with the style at position pos."""
@@ -413,9 +425,9 @@ class Accessor(object):
 
 class SilverCityAccessor(Accessor):
     def __init__(self, lexer, content):
-        #XXX i18n: need encoding arg?
+        # XXX i18n: need encoding arg?
         self.lexer = lexer
-        self.content = content #XXX i18n: this should be a unicode buffer
+        self.content = content  # XXX i18n: this should be a unicode buffer
 
     def reset_content(self, content):
         """A backdoor specific to this accessor to allow the equivalent of
@@ -425,24 +437,25 @@ class SilverCityAccessor(Accessor):
         self.__tokens_cache = None
 
     __tokens_cache = None
+
     @property
     def tokens(self):
         if self.__tokens_cache is None:
             self.__tokens_cache = self.lexer.tokenize_by_style(self.content)
         return self.__tokens_cache
-        
+
     def char_at_pos(self, pos):
         return self.content[pos]
 
     def _token_at_pos(self, pos):
-        #XXX Locality of reference should offer an optimization here.
+        # XXX Locality of reference should offer an optimization here.
         # Binary search for appropriate token.
         lower, upper = 0, len(self.tokens)  # [lower-limit, upper-limit)
         sentinel = 15
         while sentinel > 0:
             idx = ((upper - lower) / 2) + lower
             token = self.tokens[idx]
-            #print "_token_at_pos %d: token idx=%d text[%d:%d]=%r"\
+            # print "_token_at_pos %d: token idx=%d text[%d:%d]=%r"\
             #      % (pos, idx, token["start_index"], token["end_index"],
             #         token["text"])
             start, end = token["start_index"], token["end_index"]
@@ -461,18 +474,19 @@ class SilverCityAccessor(Accessor):
         return self._token_at_pos(pos)["style"]
 
     def line_and_col_at_pos(self, pos):
-        #TODO: Fix this. This is busted for line 0 (at least).
+        # TODO: Fix this. This is busted for line 0 (at least).
         line = self.line_from_pos(pos) - 1
         # I assume that since we got the line, __start_pos_from_line exists
         col = pos - self.__start_pos_from_line[line]
         return line, col
-    
-    #PERF: If perf is important for this accessor then could do much
+
+    # PERF: If perf is important for this accessor then could do much
     #      better with smarter use of _token_at_pos() for these two.
     def gen_char_and_style_back(self, start, stop):
         assert -1 <= stop <= start, "stop: %r, start: %r" % (stop, start)
         for pos in range(start, stop, -1):
             yield (self.char_at_pos(pos), self.style_at_pos(pos))
+
     def gen_char_and_style(self, start, stop):
         assert 0 <= start <= stop, "start: %r, stop: %r" % (start, stop)
         for pos in range(start, stop):
@@ -480,8 +494,9 @@ class SilverCityAccessor(Accessor):
 
     def match_at_pos(self, pos, s):
         return self.content[pos:pos+len(s)] == s
-    
+
     __start_pos_from_line = None
+
     def line_from_pos(self, pos):
         r"""
             >>> sa = SilverCityAccessor(lexer,
@@ -515,7 +530,7 @@ class SilverCityAccessor(Accessor):
         sentinel = 15
         while sentinel > 0:
             line = ((upper - lower) / 2) + lower
-            #print "LINE %d: limits=(%d, %d) start-pos=%d"\
+            # print "LINE %d: limits=(%d, %d) start-pos=%d"\
             #      % (line, lower, upper, self.__start_pos_from_line[line])
             if pos < self.__start_pos_from_line[line]:
                 upper = line
@@ -531,21 +546,26 @@ class SilverCityAccessor(Accessor):
     def line_start_pos_from_pos(self, pos):
         token = self._token_at_pos(pos)
         return token["start_index"] - token["start_column"]
+
     def pos_from_line_and_col(self, line, col):
         if not self.__start_pos_from_line:
-            self.line_from_pos(len(self.text)) # force init
+            self.line_from_pos(len(self.text))  # force init
         return self.__start_pos_from_line[line] + col
 
     @property
     def text(self):
         return self.content
+
     def text_range(self, start, end):
         return self.content[start:end]
+
     def length(self):
         return len(self.content)
+
     def gen_tokens(self):
         for token in self.tokens:
             yield token
+
     def contiguous_style_range_from_pos(self, pos):
         token = self._token_at_pos(pos)
         return (token["start_index"], token["end_index"] + 1)
@@ -556,18 +576,18 @@ class SilverCityAccessor(Accessor):
 # Recipe: htmlescape (1.1)
 def _htmlescape(s, quote=False, whitespace=False):
     """Replace special characters '&', '<' and '>' by SGML entities.
-    
+
     Also optionally replace quotes and whitespace with entities and <br/>
     as appropriate.
     """
-    s = s.replace("&", "&amp;") # Must be done first!
+    s = s.replace("&", "&amp;")  # Must be done first!
     s = s.replace("<", "&lt;")
     s = s.replace(">", "&gt;")
     if quote:
         s = s.replace('"', "&quot;")
     if whitespace:
         s = s.replace(' ', "&nbsp;")
-        #XXX Adding that '\n' might be controversial.
+        # XXX Adding that '\n' might be controversial.
         s = re.sub(r"(\r\n|\r|\n)", "<br />\n", s)
     return s
 
@@ -587,6 +607,8 @@ def _indent(s, width=4, skip_first_line=False):
         return indentstr + indentstr.join(lines)
 
 # Recipe: text_escape (0.1)
+
+
 def _escaped_text_from_text(text, escapes="eol"):
     r"""Return escaped version of text.
 
@@ -605,11 +627,11 @@ def _escaped_text_from_text(text, escapes="eol"):
                     replace EOL chars as above, tabs with '\t' and spaces
                     with periods ('.')
     """
-    #TODO:
+    # TODO:
     # - Add 'c-string' style.
     # - Add _escaped_html_from_text() with a similar call sig.
     import re
-    
+
     if isinstance(escapes, basestring):
         if escapes == "eol":
             escapes = {'\r\n': "\\r\\n\r\n", '\n': "\\n\n", '\r': "\\r\r"}
@@ -627,6 +649,7 @@ def _escaped_text_from_text(text, escapes="eol"):
     # '\n'.
     escapes_keys = escapes.keys()
     escapes_keys.sort(key=lambda a: len(a), reverse=True)
+
     def repl(match):
         val = escapes[match.group(0)]
         return val
@@ -636,10 +659,11 @@ def _escaped_text_from_text(text, escapes="eol"):
 
     return escaped
 
+
 def _one_line_summary_from_text(text, length=78,
-        escapes={'\n':"\\n", '\r':"\\r", '\t':"\\t"}):
+                                escapes={'\n': "\\n", '\r': "\\r", '\t': "\\t"}):
     r"""Summarize the given text with one line of the given length.
-    
+
         "text" is the text to summarize
         "length" (default 78) is the max length for the summary
         "escapes" is a mapping of chars in the source text to

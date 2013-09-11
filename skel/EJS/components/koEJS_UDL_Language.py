@@ -11,7 +11,7 @@ from koLintResults import koLintResults
 import scimozindent
 
 log = logging.getLogger("koEJSLanguage")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 
 def registerLanguage(registry):
@@ -28,7 +28,8 @@ class KoEJSLanguage(koHTMLLanguageBase):
     _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.ejs'
 
-    lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'EJS', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'JavaScript'}
+    lang_from_udl_family = {'CSL': 'JavaScript', 'TPL':
+                            'EJS', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'JavaScript'}
 
     sample = """<ul>
 <% products.forEach(funtion(product) { %>
@@ -50,7 +51,7 @@ class KoEJSLanguage(koHTMLLanguageBase):
         percentChar = ord("%")
         if scimoz.getCharAt(currentPos) != percentChar:
             return None
-        prevPos = currentPos - 1 # ascii
+        prevPos = currentPos - 1  # ascii
         if scimoz.getStyleAt(prevPos) != scimoz.SCE_UDL_TPL_OPERATOR:
             return None
         if scimoz.getCharAt(prevPos) != percentChar:
@@ -59,51 +60,55 @@ class KoEJSLanguage(koHTMLLanguageBase):
         if scimoz.getStyleAt(prev2Pos) != scimoz.SCE_UDL_TPL_OPERATOR:
             return None
         if scimoz.getCharAt(prev2Pos) != ord("<"):
-            return None        
+            return None
         lineNo = scimoz.lineFromPosition(currentPos)
         closeIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
         if indentStyle == 'smart':
             """
             i<%|% ==>
-            
+
             i<%
             i....<|>
             i%
-            
+
             where "i" denotes the current leading indentation
             """
-            intermediateLineIndentWidth = self._getNextLineIndent(scimoz, lineNo)
+            intermediateLineIndentWidth = self._getNextLineIndent(
+                scimoz, lineNo)
         else:
             """
             i<%|% ==>
-            
+
             i<%
             i<|>
             i%
-            
+
             Note that the indentation of inner attr lines are ignored, even in block-indent mode:
             i<foo
             i........attr="val">|</foo> =>
-            
+
             i<foo
             i........attr="val">
             i</foo>
             """
             intermediateLineIndentWidth = closeIndentWidth
-        
+
         currentEOL = eollib.eol2eolStr[eollib.scimozEOL2eol[scimoz.eOLMode]]
-        textToInsert = currentEOL + scimozindent.makeIndentFromWidth(scimoz, intermediateLineIndentWidth)
-        finalPosn = currentPos + len(textToInsert) #ascii-safe
+        textToInsert = currentEOL + scimozindent.makeIndentFromWidth(
+            scimoz, intermediateLineIndentWidth)
+        finalPosn = currentPos + len(textToInsert)  # ascii-safe
         if allowExtraNewline:
-            textToInsert += currentEOL + scimozindent.makeIndentFromWidth(scimoz, closeIndentWidth)
-        scimoz.addText(len(textToInsert), textToInsert) #ascii-safe
+            textToInsert += currentEOL + \
+                scimozindent.makeIndentFromWidth(scimoz, closeIndentWidth)
+        scimoz.addText(len(textToInsert), textToInsert)  # ascii-safe
         return finalPosn
-    
+
     def computeIndent(self, scimoz, indentStyle, continueComments):
         return self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
 
     def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
-        res = self._doIndentHere(scimoz, indentStyle, continueComments, style_info)
+        res = self._doIndentHere(
+            scimoz, indentStyle, continueComments, style_info)
         if res is None:
             return koHTMLLanguageBase.computeIndent(self, scimoz, indentStyle, continueComments)
         return res
@@ -114,7 +119,8 @@ class KoEJSLanguage(koHTMLLanguageBase):
             return koHTMLLanguageBase._keyPressed(self, ch, scimoz, style_info)
         return res
 
-    _startWords = "begin case else elsif ensure for if rescue unless until while".split(" ")
+    _startWords = "begin case else elsif ensure for if rescue unless until while".split(
+        " ")
 
     def _doIndentHere(self, scimoz, indentStyle, continueComments, style_info):
         pos = scimoz.positionBefore(scimoz.currentPos)
@@ -134,7 +140,8 @@ class KoEJSLanguage(koHTMLLanguageBase):
         lineStartPos = scimoz.positionFromLine(curLineNo)
         delta, numTags = self._getTagDiffDelta(scimoz, lineStartPos, startPos)
         if delta < 0 and numTags == 1 and curLineNo > 0:
-            didDedent, dedentAmt = self.dedentThisLine(scimoz, curLineNo, startPos)
+            didDedent, dedentAmt = self.dedentThisLine(
+                scimoz, curLineNo, startPos)
             if didDedent:
                 return dedentAmt
             else:
@@ -146,7 +153,7 @@ class KoEJSLanguage(koHTMLLanguageBase):
         newIndentWidth = indentWidth + delta * indent
         if newIndentWidth < 0:
             newIndentWidth = 0
-        #qlog.debug("new indent width: %d", newIndentWidth)
+        # qlog.debug("new indent width: %d", newIndentWidth)
         return scimozindent.makeIndentFromWidth(scimoz, newIndentWidth)
 
     def _doKeyPressHere(self, ch, scimoz, style_info):
@@ -163,7 +170,8 @@ class KoEJSLanguage(koHTMLLanguageBase):
         lineStartPos = scimoz.positionFromLine(curLineNo)
         delta, numTags = self._getTagDiffDelta(scimoz, lineStartPos, startPos)
         if delta < 0 and numTags == 1 and curLineNo > 0:
-            didDedent, dedentAmt = self.dedentThisLine(scimoz, curLineNo, startPos)
+            didDedent, dedentAmt = self.dedentThisLine(
+                scimoz, curLineNo, startPos)
             if didDedent:
                 return dedentAmt
         # Assume the tag's indent level is fine, so don't let the
@@ -183,7 +191,7 @@ class KoEJSLanguage(koHTMLLanguageBase):
             if (styles[i] == scimoz.SCE_UDL_TPL_OPERATOR
                 and styles[i + 1] == scimoz.SCE_UDL_TPL_OPERATOR
                 and chars[i] == '<'
-                and chars[i + 1] == "%"):
+                    and chars[i + 1] == "%"):
                 j = i + 2
                 while (j < lim
                        and styles[j] == scimoz.SCE_UDL_SSL_DEFAULT):
@@ -209,7 +217,10 @@ class KoEJSLanguage(koHTMLLanguageBase):
 
 _tplPatterns = ("EJS", re.compile('<%='), re.compile(r'%>\s*\Z', re.DOTALL))
 # If the text starts with a doctype decl'n or HTML, don't insert doctype in.
-_startCheck = { "HTML": (re.compile(r'<!doctype\b|<html\b', re.I), "<!DOCTYPE html>") }
+_startCheck = {"HTML": (re.compile(
+    r'<!doctype\b|<html\b', re.I), "<!DOCTYPE html>")}
+
+
 class KoEJSLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "EJS Template Linter"
@@ -220,11 +231,13 @@ class KoEJSLinter(object):
     ]
 
     def __init__(self):
-        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
-        self._html_linter = UnwrapObject(koLintService.getLinterForLanguage("HTML5"))
-        
+        koLintService = components.classes["@activestate.com/koLintService;1"].getService(
+            components.interfaces.koILintService)
+        self._html_linter = UnwrapObject(
+            koLintService.getLinterForLanguage("HTML5"))
+
     def lint(self, request):
-        #TODO: Hook on parts to pull templatized-parts out of jslint
+        # TODO: Hook on parts to pull templatized-parts out of jslint
         return self._html_linter.lint(request, TPLInfo=_tplPatterns,
                                       startCheck=_startCheck)
 
