@@ -42,7 +42,7 @@ from os.path import basename, dirname, join, exists, abspath
 from glob import glob
 import sys
 import re
-from cStringIO import StringIO
+from io import StringIO
 import logging
 from pprint import pprint
 
@@ -262,7 +262,7 @@ def _style_names_from_style_num(style_num):
     # Get a style group from styles.py.
     import styles
     if "UDL" in styles.StateMap:
-        for style_group, const_names in styles.StateMap["UDL"].items():
+        for style_group, const_names in list(styles.StateMap["UDL"].items()):
             if const_name in const_names:
                 style_names.append(style_group)
                 break
@@ -632,7 +632,7 @@ def _escaped_text_from_text(text, escapes="eol"):
     # - Add _escaped_html_from_text() with a similar call sig.
     import re
 
-    if isinstance(escapes, basestring):
+    if isinstance(escapes, str):
         if escapes == "eol":
             escapes = {'\r\n': "\\r\\n\r\n", '\n': "\\n\n", '\r': "\\r\r"}
         elif escapes == "whitespace":
@@ -647,7 +647,7 @@ def _escaped_text_from_text(text, escapes="eol"):
 
     # Sort longer replacements first to allow, e.g. '\r\n' to beat '\r' and
     # '\n'.
-    escapes_keys = escapes.keys()
+    escapes_keys = list(escapes.keys())
     escapes_keys.sort(key=lambda a: len(a), reverse=True)
 
     def repl(match):

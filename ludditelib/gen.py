@@ -132,13 +132,13 @@ class MainObj:
         # character in the buffer styled that color, so this might not
         # work in all cases.
         self.uniqueStates = {}
-        for k in self.holdUniqueStates.keys():
+        for k in list(self.holdUniqueStates.keys()):
             v = self.holdUniqueStates[k]
-            if len(v.keys()) == 1:
-                self.uniqueStates[k] = v.keys()[0]
-                log.debug("Map style [%s] to state [%s]", k, v.keys()[0])
+            if len(list(v.keys())) == 1:
+                self.uniqueStates[k] = list(v.keys())[0]
+                log.debug("Map style [%s] to state [%s]", k, list(v.keys())[0])
             log.debug("Style [%s] maps to states [%s]", k,
-                      ", ".join(v.keys()))
+                      ", ".join(list(v.keys())))
         self.holdUniqueStates = None
 
     def _split_quote_string(self, s, len):
@@ -184,7 +184,7 @@ TransitionInfo *p_TranBlock;
 Transition *p_Tran;
 FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                   WRITER_VERSION_SUBMINOR))
-            if filter(lambda(x): hasattr(x, 'tokenCheckBlock'), self.familyList.values()):
+            if [x for x in list(self.familyList.values()) if hasattr(x, 'tokenCheckBlock')]:
                 fout.write("LookBackTests *p_LBTests;\n")
                 fout.write("LookBackTestObj *p_LBTestObj;\n")
 
@@ -250,7 +250,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                   resConstants[f_idx],
                                   nameTable.get(deft_name, 0)))
 
-        family_names = map(lambda x: x.lower(), self.familyList.keys())
+        family_names = [x.lower() for x in list(self.familyList.keys())]
         family_names.sort(lambda a, b: self.families[a] - self.families[b])
         globalFlipCount = 0
         for family_name in family_names:
@@ -363,7 +363,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                        'ASTC_F_LOOKBACK_TESTS_COUNT'],
                                       num_tests))
 
-                    for i in xrange(0, num_tests):
+                    for i in range(0, num_tests):
                         tc = tcBlock[i]
                         sel = tc['selectors']
                         name = tc['name']
@@ -446,7 +446,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                         name = tc['name']
                         tokenValues[name] = tokenValues.get('name',
                                                             vals[tc['type']])
-                style_names = tokenValues.keys()
+                style_names = list(tokenValues.keys())
                 style_names.sort()
                 for style_name in style_names:
                     if not resDefinesPath:
@@ -462,7 +462,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
 
             flipCount = len(obj.flippers)
             if flipCount > 0:
-                for i in xrange(flipCount):
+                for i in range(flipCount):
                     node = obj.flippers[i]
                     if not resDefinesPath:
                         fout.write("SetFlipper(%d, \"%s\", %s, %d);"
@@ -487,7 +487,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
 
         us_hash = self.uniqueStates
         if us_hash:
-            keys = us_hash.keys()
+            keys = list(us_hash.keys())
             i = 0
             if not resDefinesPath:
                 fout.write(
@@ -525,7 +525,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                            % (resConstants['ASTC_TTABLE_CREATE_TRANS'],
                               size))
 
-        for i in xrange(stateSize):
+        for i in range(stateSize):
             stateTrans = stateTable[i]
             if not (stateTrans is None):
                 # i is the state number
@@ -842,7 +842,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                             break
 
         lang_from_udl_family = {}
-        for udl_family, curr_info in self.familyList.items():
+        for udl_family, curr_info in list(self.familyList.items()):
             norm_udl_family = {"csl": "CSL", "css": "CSS",
                                "markup": "M", "ssl": "SSL",
                                "tpl": "TPL"}[udl_family]
@@ -895,10 +895,10 @@ class Ko%(safeLangName)sLanguage(%(baseClass)s):
 
 """
             fout.write(template % data)
-            for groupMap in self.languageService_xmlNames.values():
+            for groupMap in list(self.languageService_xmlNames.values()):
                 langSvcName = groupMap[0]
                 groupVals = groupMap[1]
-                names = groupVals.keys()
+                names = list(groupVals.keys())
                 if len(names) > 0:
                     # XXX escaping needed on the values?
                     fout.write('    %s = ["%s"]\n' % (
@@ -1016,11 +1016,11 @@ class Analyzer:
         self.mainObj = mainObj
 
     def semanticCheck(self):
-        familyNames = [x.lower() for x in self.mainObj.familyList.keys()]
+        familyNames = [x.lower() for x in list(self.mainObj.familyList.keys())]
         for k in familyNames:
             if k not in self.mainObj.families:
                 warn("Family %s isn't recognized, expected one of [%s]\n",
-                     k, " ".join(self.mainObj.families.keys()))
+                     k, " ".join(list(self.mainObj.families.keys())))
                 return
         for k in familyNames:
             obj = self.mainObj.familyList[k]
@@ -1053,7 +1053,7 @@ class Analyzer:
             # Make sure no states put us in dead ends
             nameTable = self.mainObj.nameTable
             nameInfo = self.mainObj.nameInfo
-            for state_name in nameTable.keys():
+            for state_name in list(nameTable.keys()):
                 state_num = nameTable[state_name]
                 if 'owningFamily' not in nameInfo[state_num]:
                     warn("At least one transition moves to undefined state " + state_name +

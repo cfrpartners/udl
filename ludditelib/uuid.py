@@ -89,7 +89,7 @@ class UUID(object):
                 byte(self.node >> 8) + byte(self.node))
 
     def set_bytes(self, bytes):
-        values = map(ord, bytes)
+        values = list(map(ord, bytes))
         self.time_low = ((values[0] << 24) + (values[1] << 16) +
                          (values[2] << 8) + values[3])
         self.time_mid = (values[4] << 8) + values[5]

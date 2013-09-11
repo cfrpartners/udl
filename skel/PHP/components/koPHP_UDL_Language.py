@@ -73,7 +73,7 @@ class KoPHPLanguage(KoUDLLanguage, KoLanguageBaseDedentMixin):
     accessKey = 'h'
     primary = 1
     shebangPatterns = [
-        re.compile(ur'\A#!.*php.*$', re.IGNORECASE | re.MULTILINE),
+        re.compile(r'\A#!.*php.*$', re.IGNORECASE | re.MULTILINE),
     ]
     namedBlockRE = r'^(.*?function\s+[&]*?\s*[\w_]*)|(^.*?(?<=\s)(?:class|interface)\s+[\w_]*)'
     namedBlockDescription = 'PHP functions and classes'
@@ -85,7 +85,7 @@ class KoPHPLanguage(KoUDLLanguage, KoLanguageBaseDedentMixin):
         "block": [("/*", "*/")],
         "markup": "*",
     }
-    _dedenting_statements = [u'throw', u'return', u'break', u'continue']
+    _dedenting_statements = ['throw', 'return', 'break', 'continue']
     supportsSmartIndent = "brace"
     sample = """<?php
 class foo {

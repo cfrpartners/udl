@@ -169,7 +169,7 @@ def t_NUMBER(t):
     try:
         t.value = int(t.value)
     except ValueError:
-        print "Number %s is too large!" % t.value
+        print("Number %s is too large!" % t.value)
         t.value = 0
     return t
 
@@ -190,7 +190,7 @@ t_ignore = ' \t'
 
 
 def t_error(t):
-    print "Illegal character '%s'" % t.value[0]
+    print("Illegal character '%s'" % t.value[0])
     t.skip(1)
 
 # Comments
@@ -235,7 +235,7 @@ class Lexer:
             tok = self.token()
             if not tok:
                 break
-            print tok
+            print(tok)
 
 
 def get_input(fname, searchPath=['.']):
@@ -254,7 +254,7 @@ def get_input(fname, searchPath=['.']):
                     # print "Can't open file " + fpath
                     pass
             if fin is None:
-                print "Can't find file " + fname
+                print("Can't find file " + fname)
                 return None
         s = fin.read()
         fin.close()

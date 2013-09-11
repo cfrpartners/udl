@@ -105,9 +105,9 @@ Inline perl:   <% Inline Perl %>, and continue...
             _indent_styles=[
                 components.interfaces.ISciMoz.SCE_UDL_TPL_OPERATOR]
         )
-        self._indent_chars = u'{}'
-        self._indent_open_chars = u'{'
-        self._indent_close_chars = u'}'
+        self._indent_chars = '{}'
+        self._indent_open_chars = '{'
+        self._indent_close_chars = '}'
 
 
 class KoEpMojoLinter(object):
