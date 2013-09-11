@@ -1,25 +1,25 @@
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -31,7 +31,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Luddite output file generation code."""
@@ -53,12 +53,10 @@ from ludditelib.common import LudditeError, __version_info__
 log = logging.getLogger("luddite")
 
 
-
 #---- support stuff
-
-
 def isTemplateStateName(stateName):
     return stateName.startswith("IN_TPL_")
+
 
 def die(msg, cond=None):
     if not cond:
@@ -68,6 +66,7 @@ def die(msg, cond=None):
     sys.stderr.write(msg)
     sys.exit(0)
     # raise(msg)
+
 
 def warn(fmt, *vals):
     if fmt[-1] == "\n":
@@ -90,34 +89,36 @@ def test_assign_entry(lst, idx, val, dft_val=None):
     elif lst[idx] is None:
         lst[idx] = val
 
+
 def getSafeName(languageName):
     """Map [^-_.\w\d]+ in language name to _."""
     return re.sub(r'[^-_.\w\d]+', '_', languageName)
+
 
 class MainObj:
     def __init__(self):
         self.stateTable = []
         self.stateCount = 0
         self.holdUniqueStates = {}
-        self.familyList = {} # Things like lookBackTests, kwds, etc
+        self.familyList = {}  # Things like lookBackTests, kwds, etc
         self.languageName = None
         self.nameTable = {}  # Hash state names to unique numbers
         self.nameInfo = []    # Keep info on state numbers
-        self.verbose = False  #XXX Should go away in favour of log.debug usage
+        self.verbose = False  # XXX Should go away in favour of log.debug usage
         self.families = {
-            'markup' : 0,
-            'css' : 1,
-            'csl' : 2,
-            'ssl' : 3,
-            'tpl' : 4,
+            'markup': 0,
+            'css': 1,
+            'csl': 2,
+            'ssl': 3,
+            'tpl': 4,
         }
         self._re_dollar_var = re.compile(r'\$([A-Z]+)')
         self._re_is_word = re.compile(r'^[\w_][\w\d_]+$')
 
         self._re_dequote_start = None
-        self.languageService_xmlNames = {'namespace' : ['namespaces', {}, ],
-                                         'public_id' : ['publicIdList', {}, ],
-                                         'system_id' : ['systemIdList', {}, ],
+        self.languageService_xmlNames = {'namespace': ['namespaces', {}, ],
+                                         'public_id': ['publicIdList', {}, ],
+                                         'system_id': ['systemIdList', {}, ],
                                          }
 
     def _get_safe_lang_name(self):
@@ -151,15 +152,16 @@ class MainObj:
 
     def _has_ptn_var(self, s):
         mobj = self._re_dollar_var.search(s)
-        if mobj is None: return None
+        if mobj is None:
+            return None
         return mobj.group(1)
-    
+
     def _state_num_from_name(self, nameTable, target_state_name, cmd):
         target_state_num = nameTable.get(target_state_name, None)
         if target_state_num is None:
             die("%s: State %s isn't defined" % (cmd, target_state_name,), True)
         return target_state_num
-        
+
     def dumpAsTable(self, resConstants, out_file):
         self.resConstants = resConstants
         resDefinesPath = (resConstants and True)
@@ -171,7 +173,7 @@ class MainObj:
         if not resDefinesPath:
             # Print some common declarations
             fout.write("""
-                       
+
 #define WRITER_VERSION_MAJOR	%d
 #define WRITER_VERSION_MINOR	%d
 #define WRITER_VERSION_SUBMINOR	%d
@@ -185,13 +187,13 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
             if filter(lambda(x): hasattr(x, 'tokenCheckBlock'), self.familyList.values()):
                 fout.write("LookBackTests *p_LBTests;\n")
                 fout.write("LookBackTestObj *p_LBTestObj;\n")
-    
-            fout.write("p_TransitionTable = GetTable();\n") # p_MainInfo->
+
+            fout.write("p_TransitionTable = GetTable();\n")  # p_MainInfo->
             fout.write("if (!p_TransitionTable) return false;\n")
             if self.languageName:
                 fout.write('p_language_name = "%s";\n'
                            % self.escapeStr(self.languageName))
-            
+
         else:
             # Write out version info for the reader
             fout.write("1:lexer resource\n")
@@ -202,7 +204,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
             fout.write("%d:%d:%d:%d\n" %
                        (resConstants["ASTC_TRAN_WRITER_VERSION"],
                         WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
-                                  WRITER_VERSION_SUBMINOR))
+                        WRITER_VERSION_SUBMINOR))
             if self.languageName:
                 self.emitScratchBuffer(fout, self.languageName)
                 fout.write("%s\n" % resConstants['ASTC_LANGUAGE_NAME'])
@@ -210,7 +212,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
 
         nameTable = self.nameTable
         # Dump all the transitions
-    
+
         # Initialize some hard-wired data
         if 1:
             family_name_pairs = [
@@ -221,11 +223,11 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                 ('TEMPLATE', 'TPL')]
             for pair in family_name_pairs:
                 (long_name, short_name) = pair
-                deft_name = "IN_" + short_name + "_DEFAULT";
-                if self.verbose and not (resDefinesPath or nameTable.has_key(deft_name)):
+                deft_name = "IN_" + short_name + "_DEFAULT"
+                if self.verbose and not (resDefinesPath or deft_name in nameTable):
                     warn("Can't figure out a value for state %s, using 0\n",
                          deft_name)
-                
+
                 f_idx = "TRAN_FAMILY_" + long_name
                 if not resDefinesPath:
                     fout.write("familyColors[%s] = %s;\n"
@@ -253,7 +255,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
         globalFlipCount = 0
         for family_name in family_names:
             globalFlipCount += len(self.familyList[family_name].flippers)
-    
+
         if globalFlipCount > 0:
             if not resDefinesPath:
                 fout.write("SetFlipperCount(%d);" % globalFlipCount)
@@ -262,17 +264,17 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                            % (resConstants['ASTC_FLIPPER_COUNT'],
                               globalFlipCount))
         flipIdx = 0
-    
+
         for family_name in family_names:
             family_num = self.families[family_name]
             if not resDefinesPath:
-                fout.write("SetCurrFamily(%d);" % family_num) # p_MainInfo->
-                fout.write("p_FamilyInfo = GetCurrFamily();\n") # p_MainInfo->
+                fout.write("SetCurrFamily(%d);" % family_num)  # p_MainInfo->
+                fout.write("p_FamilyInfo = GetCurrFamily();\n")  # p_MainInfo->
             else:
                 fout.write("%d:%d\n"
                            % (resConstants['ASTC_CURRENT_FAMILY'],
                               family_num))
-                
+
             obj = self.familyList[family_name]
             if 1:
                 st_name = obj.initialState
@@ -282,9 +284,9 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                 else:
                     st_val = 0
                     st_name = '??'
-                
+
                 if not resDefinesPath:
-                    #XXX Eric, my change from printf() to fout.write()
+                    # XXX Eric, my change from printf() to fout.write()
                     #    has *added* a newline at the end of this line.
                     #    I.e. before my change the next line
                     #    (SetSublanguageName()) was in the "// ..." comment.
@@ -300,11 +302,12 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                   st_val))
                     if obj.subLanguageName:
                         self.emitScratchBuffer(fout, obj.subLanguageName)
-                        fout.write("%s\n" % resConstants['ASTC_SUBLANGUAGE_NAME'])
+                        fout.write("%s\n" % resConstants[
+                                   'ASTC_SUBLANGUAGE_NAME'])
             if not resDefinesPath:
                 fout.write('\n')
-    
-            #XXX Don't worry about the constant name, as we'll be generating
+
+            # XXX Don't worry about the constant name, as we'll be generating
             # a compiled table soon.
             keywordList = getattr(obj, 'keywordList', None)
             if keywordList:
@@ -323,17 +326,20 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                     fout.write("%d\n" % resConstants['ASTC_F_WORDLIST'])
                     fout.write("%d:%d:%d\n"
                                % (resConstants['ASTC_F_KEYWORD_STYLE'],
-                                  resConstants[self.fullStyleName(obj.keywordStyle[0])],
+                                  resConstants[self.fullStyleName(
+                                      obj.keywordStyle[0])],
                                   resConstants[self.fullStyleName(obj.keywordStyle[1])]))
 
             # Now populate the LookBackTables
             tcBlock = getattr(obj, 'tokenCheckBlock', None)
             if tcBlock:
                 if not resDefinesPath:
-                    fout.write("p_LBTests = p_FamilyInfo->CreateNewLookBackTests();\n")
+                    fout.write(
+                        "p_LBTests = p_FamilyInfo->CreateNewLookBackTests();\n")
                     fout.write("if (!p_LBTests) return false;\n")
                 else:
-                    fout.write("%d\n" % resConstants['ASTC_F_LOOKBACK_TESTS_CREATE'])
+                    fout.write("%d\n" % resConstants[
+                               'ASTC_F_LOOKBACK_TESTS_CREATE'])
 
                 startStyleName = self.fullStyleName(obj.start_style)
                 endStyleName = self.fullStyleName(obj.end_style)
@@ -353,31 +359,35 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                         fout.write("p_LBTests->SetTestCount(%d);" % num_tests)
                     else:
                         fout.write("%d:%d\n"
-                                   % (resConstants['ASTC_F_LOOKBACK_TESTS_COUNT'],
+                                   % (resConstants[
+                                       'ASTC_F_LOOKBACK_TESTS_COUNT'],
                                       num_tests))
-                    
+
                     for i in xrange(0, num_tests):
                         tc = tcBlock[i]
                         sel = tc['selectors']
                         name = tc['name']
                         action = tc['type']
                         if not resDefinesPath:
-                            fout.write("p_LBTestObj = p_LBTests->GetTest(%d);" % i)
+                            fout.write(
+                                "p_LBTestObj = p_LBTests->GetTest(%d);" % i)
                             fout.write("if (p_LBTestObj) {\n")
                         else:
                             fout.write("%d:%d\n"
                                        % (resConstants['ASTC_LBT_GET'], i))
 
-
                         if 1:
-                            #Fake Python "block" to reflect the generated code.
+                            # Fake Python "block" to reflect the generated
+                            # code.
                             if not resDefinesPath:
                                 fout.write("p_LBTestObj->SetActionStyle(LBTEST_ACTION_%s, %s);"
                                            % (action.upper(), self.fullStyleName(name)))
                             else:
                                 fout.write("%d:%d:%d\n"
-                                           % (resConstants['ASTC_LBT_ACTION_STYLE'],
-                                              resConstants["LBTEST_ACTION_" + action.upper()],
+                                           % (resConstants[
+                                               'ASTC_LBT_ACTION_STYLE'],
+                                              resConstants[
+                                                  "LBTEST_ACTION_" + action.upper()],
                                               resConstants[self.fullStyleName(name)]))
 
                             if sel == 'all':
@@ -391,35 +401,45 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                     kstring = self.escapeStr(" ".join(sel))
                                     set_word_list = self._all_words(sel)
                                     if not resDefinesPath:
-                                        kstring2 = self._split_quote_string(kstring, 68)
-                                        cmd = (set_word_list and 'SetWordList') or 'SetStrings'
+                                        kstring2 = self._split_quote_string(
+                                            kstring, 68)
+                                        cmd = (
+                                            set_word_list and 'SetWordList') or 'SetStrings'
                                         fout.write("p_LBTestObj->%s(\"%s\");"
                                                    % (cmd, kstring2))
                                     else:
                                         self.emitScratchBuffer(fout, kstring)
-                                        cmd = (set_word_list and 'ASTC_LBT_WORDLIST') or 'ASTC_LBT_STRINGS'
+                                        cmd = (
+                                            set_word_list and 'ASTC_LBT_WORDLIST') or 'ASTC_LBT_STRINGS'
                                         fout.write("%s\n" % resConstants[cmd])
-                                        
+
                             if not resDefinesPath:
-                                fout.write("p_LBTests->SetTest(%d, p_LBTestObj);" % i)
+                                fout.write(
+                                    "p_LBTests->SetTest(%d, p_LBTestObj);" % i)
                             else:
                                 fout.write("%d:%d\n"
                                            % (resConstants['ASTC_LBT_TEST'], i))
                         if not resDefinesPath:
                             fout.write("}\n")
-    
+
                 # Issue the defaults
                 tokenValues = {}
                 vals = {'reject': 1, 'accept': 2, 'skip': 4}
-                defaultActions = ["LBTEST_ACTION_REJECT", # None given, reject all
-                                  "LBTEST_ACTION_ACCEPT", # Only rej, acc others
-                                  "LBTEST_ACTION_REJECT", # Only acc, rej others
-                                  "LBTEST_ACTION_SKIP",	# Acc|rej, skip others
-                                  "LBTEST_ACTION_REJECT", # Only skip, rej others
-                                  "LBTEST_ACTION_ACCEPT", # Rej|skip, acc others
-                                  "LBTEST_ACTION_REJECT", # Acc|skip, rej others
-                                  "LBTEST_ACTION_REJECT", # Spec all, rej others
-                                 ]
+                defaultActions = ["LBTEST_ACTION_REJECT",  # None given, reject all
+                                  "LBTEST_ACTION_ACCEPT",
+                                  # Only rej, acc others
+                                  "LBTEST_ACTION_REJECT",
+                                  # Only acc, rej others
+                                  "LBTEST_ACTION_SKIP",  # Acc|rej, skip others
+                                  "LBTEST_ACTION_REJECT",
+                                  # Only skip, rej others
+                                  "LBTEST_ACTION_ACCEPT",
+                                  # Rej|skip, acc others
+                                  "LBTEST_ACTION_REJECT",
+                                  # Acc|skip, rej others
+                                  "LBTEST_ACTION_REJECT",
+                                  # Spec all, rej others
+                                  ]
                 for tc in tcBlock:
                     sel = tc['selectors']
                     if isinstance(sel, (list, tuple)):
@@ -436,9 +456,10 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                     else:
                         fout.write("%d:%d:%d\n"
                                    % (resConstants['ASTC_LBT_DEFAULT'],
-                                      resConstants[self.fullStyleName(style_name)],
+                                      resConstants[self.fullStyleName(
+                                          style_name)],
                                       resConstants[defaultActions[tokenValues[style_name]]]))
-    
+
             flipCount = len(obj.flippers)
             if flipCount > 0:
                 for i in xrange(flipCount):
@@ -449,30 +470,34 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                       self.fullStyleName(node['style']),
                                       node['value']))
                     else:
-                        self.emitScratchBuffer(fout, self.escapeStr(node['name']))
+                        self.emitScratchBuffer(
+                            fout, self.escapeStr(node['name']))
                         fout.write("%d:%d:%d:%d\n"
                                    % (resConstants['ASTC_F_FLIPPER'],
                                       flipIdx,
-                                      resConstants[self.fullStyleName(node['style'])],
+                                      resConstants[self.fullStyleName(
+                                          node['style'])],
                                       node['value']))
                     flipIdx += 1
-    
+
         # Transition table info and unique states are global
-    
+
         stateTable = self.stateTable
         stateSize = (stateTable and len(stateTable)) or 0
-    
+
         us_hash = self.uniqueStates
         if us_hash:
             keys = us_hash.keys()
             i = 0
             if not resDefinesPath:
-                fout.write("p_TransitionTable->SetNumUniqueStates(%d);" % len(keys))
+                fout.write(
+                    "p_TransitionTable->SetNumUniqueStates(%d);" % len(keys))
             else:
                 fout.write("%d:%d\n"
                            % (resConstants['ASTC_TTABLE_NUM_UNIQUE_STATES'],
                               len(keys)))
-            if keys: keys.sort()
+            if keys:
+                keys.sort()
             for k in keys:
                 k2 = self.fullStyleName(k)
                 int_state_name = us_hash[k]
@@ -486,10 +511,10 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                   i, resConstants[k2],
                                   nameTable[int_state_name]))
                 i += 1
-                
+
         if not resDefinesPath:
             fout.write("\n\n")
-            
+
         if not (stateTable is None):
             size = len(stateTable)
             if not resDefinesPath:
@@ -499,13 +524,13 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                 fout.write("%d:%d\n"
                            % (resConstants['ASTC_TTABLE_CREATE_TRANS'],
                               size))
-                
+
         for i in xrange(stateSize):
             stateTrans = stateTable[i]
             if not (stateTrans is None):
                 # i is the state number
                 old_family_name = self.getFamilyOwner(i)
-    
+
                 if not resDefinesPath:
                     fout.write("p_TranBlock = p_TransitionTable->Get(%d);" % i)
                     fout.write("if (!p_TranBlock) return false;\n")
@@ -517,14 +542,16 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                     trans_value = stateTran['value']
                     state_type = None
                     final_trans_value = None
-                    ignore_case = 0; # Set to 1 for patterns
-                    
+                    ignore_case = 0
+                    # Set to 1 for patterns
+
                     if stateTran['type'] == 'string':
                         if len(trans_value) == 0:
                             state_type = 'TRAN_SEARCH_EMPTY'
                         else:
                             state_type = 'TRAN_SEARCH_STRING'
-                            final_trans_value = '"' + self.escapeStr(trans_value) + '"'
+                            final_trans_value = '"' + \
+                                self.escapeStr(trans_value) + '"'
                     elif stateTran['type'] == 'pattern':
                         if len(trans_value[0]) == 0:
                             state_type = 'TRAN_SEARCH_EMPTY'
@@ -536,10 +563,12 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                             state_type = 'TRAN_SEARCH_REGEX'
                             final_trans_value = trans_value[0]
                             ignore_case = trans_value[1]
-                            
+
                             obj = self.familyList[old_family_name]
-                            die ("Can't get a family obj for state %d" % ((stateTran.get('trans_num', i)),),
-                                 obj is None)
+                            die(
+                                "Can't get a family obj for state %d" % (
+                                    (stateTran.get('trans_num', i)),),
+                                obj is None)
                             # Do variable substitution
                             lim = 1000
                             i = 0
@@ -564,29 +593,35 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                     processed_part += final_trans_value[:d1]
                                     final_trans_value = final_trans_value[d1:]
                                     continue
-                                if not obj.patterns.has_key(ptn1):
-                                    die("Undefined pattern " + ptn1 + " in str " + trans_value[0] + ", family " + family_name, True)
-                                final_trans_value = final_trans_value.replace("$" + ptn1, obj.patterns[ptn1])
+                                if ptn1 not in obj.patterns:
+                                    die("Undefined pattern " + ptn1 + " in str " + trans_value[
+                                        0] + ", family " + family_name, True)
+                                final_trans_value = final_trans_value.replace(
+                                    "$" + ptn1, obj.patterns[ptn1])
                                 i += 1
                                 if i > lim:
                                     warn("Warning: Possible infinite loop trying to resolve %s -- giving up after %d cycles at final_trans_value"
                                          % (trans_value[0], lim))
                                     processed_part += final_trans_value
                                     break
-                                
-                            final_trans_value = processed_part.replace('\\', '\\\\')
+
+                            final_trans_value = processed_part.replace(
+                                '\\', '\\\\')
                             if self.verbose and trans_value[0] != final_trans_value:
-                                warn("Mapped %s to %s" % (trans_value[0], final_trans_value))
+                                warn("Mapped %s to %s" % (
+                                    trans_value[0], final_trans_value))
                             final_trans_value = qq(final_trans_value)
                     elif stateTran['type'] == 'delimiter':
                         state_type = 'TRAN_SEARCH_DELIMITER'
                         final_trans_value = '*current delimiter*'
                     else:
-                        die("cmd [%d] -- weird cmd of %s" % (i, trans_value), False)
-                    # final_trans_value =~ s/([\\\"])/\\$1/g;  # Escape problem chars
+                        die("cmd [%d] -- weird cmd of %s" % (
+                            i, trans_value), False)
+                    # final_trans_value =~ s/([\\\"])/\\$1/g;  # Escape problem
+                    # chars
                     redo = 'false'
                     no_keyword = 'false'
-                    colors = {'upto' : '-1', 'include' : '-1'}
+                    colors = {'upto': '-1', 'include': '-1'}
                     cmds = stateTran.get('cmds', [])
                     pushPopStateDirective = replaceStateDirective = None
                     eolDirective = setDelimiterDirective = None
@@ -597,45 +632,55 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                             cmd_val = cmd[1]
                             die("Unexpected type of " + cmd_val['type'],
                                 colors[cmd_val['type']] is None)
-                            colors[cmd_val['type']] = self.fullStyleName(cmd_val['value'])
+                            colors[cmd_val['type']] = self.fullStyleName(
+                                cmd_val['value'])
                         elif cmd[0] == 'redo':
                             redo = 'true'
                         elif cmd[0] == 'no_keyword':
                             no_keyword = 'true'
                         elif cmd[0] == 'spush_check':
                             target_state_name = cmd[1]
-                            die("No state name to push", target_state_name is None)
+                            die("No state name to push",
+                                target_state_name is None)
                             if pushPopStateDirective:
                                 die("Can't push and pop at state " +
                                     self.nameInfo[i]['name'] +
                                     " matching " + final_trans_value,
                                     True)
-                            target_state_num = self._state_num_from_name(nameTable, target_state_name, cmd[0])
-                            new_family_name = self.getFamilyOwner(target_state_num)
+                            target_state_num = self._state_num_from_name(
+                                nameTable, target_state_name, cmd[0])
+                            new_family_name = self.getFamilyOwner(
+                                target_state_num)
                             if not resDefinesPath:
-                                pushPopStateDirective = ("p_Tran->SetPushState(%d, %s);" % (target_state_num, self.families[new_family_name]))
+                                pushPopStateDirective = ("p_Tran->SetPushState(%d, %s);" % (
+                                    target_state_num, self.families[new_family_name]))
                             else:
                                 pushPopStateDirective = \
                                     ("%d:%d:%d" % (
-                                            resConstants['ASTC_TRAN_PUSH_STATE'],
-                                            target_state_num,
-                                            self.families[new_family_name]))
-                                
+                                     resConstants[
+                                     'ASTC_TRAN_PUSH_STATE'],
+                                     target_state_num,
+                                     self.families[new_family_name]))
+
                         elif cmd[0] == 'sstack_set':
                             target_state_name = cmd[1]
-                            die("No state name to set", target_state_name is None)
-                            target_state_num = self._state_num_from_name(nameTable, target_state_name, cmd[0])
-                            new_family_name = self.getFamilyOwner(target_state_num)
+                            die("No state name to set",
+                                target_state_name is None)
+                            target_state_num = self._state_num_from_name(
+                                nameTable, target_state_name, cmd[0])
+                            new_family_name = self.getFamilyOwner(
+                                target_state_num)
                             if not resDefinesPath:
                                 replaceStateDirective = ("p_Tran->ReplacePushState(%d, %s);" %
                                                          (target_state_num, self.families[new_family_name]))
                             else:
                                 replaceStateDirective = \
                                     ("%d:%d:%d" % (
-                                            resConstants['ASTC_TRAN_REPLACE_STATE'],
-                                            target_state_num,
-                                            self.families[new_family_name]))
-                                
+                                     resConstants[
+                                     'ASTC_TRAN_REPLACE_STATE'],
+                                     target_state_num,
+                                     self.families[new_family_name]))
+
                         elif cmd[0] == 'spop_check':
                             if pushPopStateDirective:
                                 die("Can't both push and pop at state " +
@@ -645,61 +690,75 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                             if not resDefinesPath:
                                 pushPopStateDirective = "p_Tran->SetPopState();"
                             else:
-                                pushPopStateDirective = str(resConstants['ASTC_TRAN_POP_STATE'])
+                                pushPopStateDirective = str(
+                                    resConstants['ASTC_TRAN_POP_STATE'])
                         elif cmd[0] == 'at_eol':
                             target_state_name = cmd[1]
-                            die("No state name at eof", target_state_name is None)
-                            target_state_num = self._state_num_from_name(nameTable, target_state_name, cmd[0])
-                            new_family_name = self.getFamilyOwner(target_state_num)
+                            die("No state name at eof",
+                                target_state_name is None)
+                            target_state_num = self._state_num_from_name(
+                                nameTable, target_state_name, cmd[0])
+                            new_family_name = self.getFamilyOwner(
+                                target_state_num)
                             if not resDefinesPath:
-                                eolDirective = ("p_Tran->SetEolTransition(%d, %s);" % (target_state_num, self.families[new_family_name]))
+                                eolDirective = ("p_Tran->SetEolTransition(%d, %s);" % (
+                                    target_state_num, self.families[new_family_name]))
                             else:
                                 eolDirective = \
                                     ("%d:%d:%d" % (
-                                            resConstants['ASTC_TRAN_EOL_STATE'],
-                                            target_state_num,
-                                            self.families[new_family_name]))
+                                     resConstants[
+                                     'ASTC_TRAN_EOL_STATE'],
+                                     target_state_num,
+                                     self.families[new_family_name]))
                         elif cmd[0] == 'keep_delimiter':
                             if state_type != 'TRAN_SEARCH_DELIMITER':
                                 raise LudditeError("The %s action can only be specified when matching against a delimiter" %
-                                                   (cmd[0],));                            
+                                                   (cmd[0],))
                             if not resDefinesPath:
-                                keepDelimiterDirective = ("p_Tran->KeepDelimiter();")
+                                keepDelimiterDirective = (
+                                    "p_Tran->KeepDelimiter();")
                             else:
-                                keepDelimiterDirective = str(resConstants['ASTC_TRAN_KEEP_DELIMITER'])
+                                keepDelimiterDirective = str(
+                                    resConstants['ASTC_TRAN_KEEP_DELIMITER'])
                         elif cmd[0] == 'set_delimiter':
                             if state_type != 'TRAN_SEARCH_REGEX':
                                 raise LudditeError("The %s action can only be specified when matching patterns" %
-                                                   (cmd[0],));
+                                                   (cmd[0],))
                             if not resDefinesPath:
-                                setOppositeDelimiterDirective = ("p_Tran->SetDelimiter(false, %s);" % (cmd[1]))
+                                setOppositeDelimiterDirective = (
+                                    "p_Tran->SetDelimiter(false, %s);" % (cmd[1]))
                             else:
                                 setOppositeDelimiterDirective = \
                                     ("%d:0:%s" % (
-                                            resConstants['ASTC_TRAN_SET_DELIMITER'],
-                                            cmd[1]))
+                                     resConstants[
+                                     'ASTC_TRAN_SET_DELIMITER'],
+                                     cmd[1]))
                         elif cmd[0] == 'set_opposite_delimiter':
                             if state_type != 'TRAN_SEARCH_REGEX':
                                 raise LudditeError("The %s action can only be specified when matching patterns, %s-%s given" %
-                                                   (cmd[0], stateTran['type'], trans_value or ""));
+                                                   (cmd[0], stateTran['type'], trans_value or ""))
                             if not resDefinesPath:
-                                setDelimiterDirective = ("p_Tran->SetDelimiter(true, %s);" % (cmd[1]))
+                                setDelimiterDirective = (
+                                    "p_Tran->SetDelimiter(true, %s);" % (cmd[1]))
                             else:
                                 setDelimiterDirective = \
                                     ("%d:1:%s" % (
-                                            resConstants['ASTC_TRAN_SET_DELIMITER'],
-                                            cmd[1]))
+                                     resConstants[
+                                     'ASTC_TRAN_SET_DELIMITER'],
+                                     cmd[1]))
                         elif cmd[0] == 'clear_delimiter':
                             if not resDefinesPath:
-                                setDelimiterDirective = ("p_Tran->ClearDelimiter();")
+                                setDelimiterDirective = (
+                                    "p_Tran->ClearDelimiter();")
                             else:
                                 setDelimiterDirective = \
                                     ("%d" % (
-                                            resConstants['ASTC_TRAN_CLEAR_DELIMITER'],))
+                                     resConstants['ASTC_TRAN_CLEAR_DELIMITER'],))
                         else:
                             die("Unexpected cmd type of " + cmd[0], True)
                     if redo == 'true' and colors['include'] != '-1':
-                        raise LudditeError("Error in state %s, transition %s: the include paint action and the redo action can't be given for the same transition" % (st_name, final_trans_value))
+                        raise LudditeError("Error in state %s, transition %s: the include paint action and the redo action can't be given for the same transition" % (
+                            st_name, final_trans_value))
                     final_state = final_state_comment = None
                     new_family_name = None
                     final_state = stateTran.get('trans_num', None)
@@ -715,13 +774,13 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                     cmd = None
                     if not resDefinesPath:
                         cmd = ((state_type == 'TRAN_SEARCH_EOF') and 'SetEOFInfo'
-                                or (((state_type == 'TRAN_SEARCH_EMPTY') and 'SetEmptyInfo')
-                                    or 'Append'))
+                               or (((state_type == 'TRAN_SEARCH_EMPTY') and 'SetEmptyInfo')
+                                   or 'Append'))
                     else:
                         cmd = ((state_type == 'TRAN_SEARCH_EOF') and 'ASTC_TBLOCK_EOF_TRAN'
-                                or (((state_type == 'TRAN_SEARCH_EMPTY') and 'ASTC_TBLOCK_EMPTY_TRAN')
-                                    or 'ASTC_TBLOCK_APPEND_TRAN'))
-                                
+                               or (((state_type == 'TRAN_SEARCH_EMPTY') and 'ASTC_TBLOCK_EMPTY_TRAN')
+                                   or 'ASTC_TBLOCK_APPEND_TRAN'))
+
                     if not resDefinesPath:
                         fout.write("p_Tran = new Transition(%s, %s, %s, %s, %s, %d, %d, %s, %d);%s\n"
                                    % (state_type, final_trans_value,
@@ -733,18 +792,21 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                         fout.write("%d:%d:%d:%d:%d:%d:%d:%d:%d\n"
                                    % (resConstants['ASTC_CREATE_NEW_TRAN'],
                                       resConstants[state_type],
-                                      colors['upto'] == "-1" and -1 or resConstants[colors['upto']],
-                                      colors['include'] == "-1" and -1 or resConstants[colors['include']],
+                                      colors['upto'] == "-1" and -1 or resConstants[
+                                          colors['upto']],
+                                      colors['include'] == "-1" and -1 or resConstants[
+                                          colors['include']],
                                       redo == 'true' and 1 or 0,
                                       final_state,
                                       token_check and 1 or 0,
                                       ignore_case,
                                       no_keyword == 'true' and 1 or 0
                                       ))
-                    for directive in [pushPopStateDirective, replaceStateDirective, eolDirective,
-                                      setDelimiterDirective,
-                                      setOppositeDelimiterDirective,
-                                      keepDelimiterDirective]:
+                    for directive in [
+                        pushPopStateDirective, replaceStateDirective, eolDirective,
+                        setDelimiterDirective,
+                        setOppositeDelimiterDirective,
+                            keepDelimiterDirective]:
                         if directive:
                             fout.write(directive + "\n")
                     if not resDefinesPath:
@@ -776,7 +838,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                         directive = line.split()
                         if directive[:2] == ["component", guid]:
                             if directive[2:3] != ["components/%s" % leaf]:
-                                return # file exists
+                                return  # file exists
                             break
 
         lang_from_udl_family = {}
@@ -802,7 +864,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
             elif lang_from_udl_family["M"] == "HTML":
                 data['baseImport'] = "koXMLLanguageBase"
                 data['baseClass'] = "koHTMLLanguageBase"
-            
+
         fout = open(path, "w")
         try:
             template = """# Komodo %(langName)s language service.
@@ -838,8 +900,9 @@ class Ko%(safeLangName)sLanguage(%(baseClass)s):
                 groupVals = groupMap[1]
                 names = groupVals.keys()
                 if len(names) > 0:
-                    #XXX escaping needed on the values?
-                    fout.write('    %s = ["%s"]\n' % (langSvcName, '", "'.join(names)))
+                    # XXX escaping needed on the values?
+                    fout.write('    %s = ["%s"]\n' % (
+                        langSvcName, '", "'.join(names)))
             if hasattr(self, 'sample'):
                 fout.write('\n\n    sample = r"""%s"""\n' % self.sample)
         finally:
@@ -857,9 +920,9 @@ class Ko%(safeLangName)sLanguage(%(baseClass)s):
             self.re_esb_set = [self.re_bspair,
                                self.re_escaped_quote,
                                self.re_escaped_other,
-                               self.re_non_escape,]
+                               self.re_non_escape, ]
             self.re_75 = re.compile('(.{1,75})(.*)$', re.DOTALL)
-            
+
         s1 = re.sub(self._re_dequote_end, '',
                     re.sub(self._re_dequote_start, '', s))
 
@@ -879,13 +942,13 @@ class Ko%(safeLangName)sLanguage(%(baseClass)s):
             if not did_match:
                 die("emitScratchBuffer: Can't match '" + s1 + "'", True)
         s2 = "".join(pieces)
-        
+
         # $kstring =~ s/(?<=[^\\](?:\\\\)*)\\([\'\"])/$1/g;
         # $kstring =~ s/\\\\/\\/g;  # We don't need to escape quotes and backslashes
         fout.write("%d:%d\n"
                    % (self.resConstants['ASTC_SCRATCH_BUFFER_START'],
                       len(s2)))
-        
+
         while len(s2) > 0:
             mobj = self.re_75.match(s2)
             die("Can't match anything on " + s2, mobj is None)
@@ -902,7 +965,7 @@ class Ko%(safeLangName)sLanguage(%(baseClass)s):
             k2 = 'SCE_UDL_' + k
         else:
             k2 = k
-        if self.resConstants and not self.resConstants.has_key(k2):
+        if self.resConstants and k2 not in self.resConstants:
             die("Style " + k2 + " is unknown. ", True)
         return k2
 
@@ -912,16 +975,16 @@ class Ko%(safeLangName)sLanguage(%(baseClass)s):
         f.close()
 
     def getFamilyOwner(self, stateNum):
-        die ("No owning family for state #" + str(stateNum),
-             not self.nameInfo[stateNum].has_key('owningFamily'))
+        die("No owning family for state #" + str(stateNum),
+            'owningFamily' not in self.nameInfo[stateNum])
         familyName = self.nameInfo[stateNum]['owningFamily']
-        die ("No owning family for state #" + str(stateNum),
-             familyName is None)
+        die("No owning family for state #" + str(stateNum),
+            familyName is None)
         return familyName
-        
-    def internStateName(self, name):        
+
+    def internStateName(self, name):
         nameTable = self.nameTable
-        if not nameTable.has_key(name):
+        if name not in nameTable:
             self.stateCount += 1
             stateNum = nameTable[name] = self.stateCount
             test_assign_entry(self.nameInfo, stateNum, {})
@@ -931,8 +994,10 @@ class Ko%(safeLangName)sLanguage(%(baseClass)s):
     def setFamilyOwner(self, stateNum, permFamilyInfo):
         nameInfo = self.nameInfo
         test_assign_entry(nameInfo, stateNum, {})
-        nameInfo[stateNum]['owningFamily'] = nameInfo[stateNum].get('owningFamily', permFamilyInfo.currFamily)
-        
+        nameInfo[stateNum]['owningFamily'] = nameInfo[
+            stateNum].get('owningFamily', permFamilyInfo.currFamily)
+
+
 class CurrentInfo:
     def __init__(self, currFamily):
         self.patterns = {}
@@ -944,15 +1009,16 @@ class CurrentInfo:
 
     def __repr__(self):
         return "<CurrentInfo %r>" % self.subLanguageName
-    
+
+
 class Analyzer:
     def __init__(self, mainObj):
         self.mainObj = mainObj
-        
+
     def semanticCheck(self):
         familyNames = [x.lower() for x in self.mainObj.familyList.keys()]
         for k in familyNames:
-            if not self.mainObj.families.has_key(k):
+            if k not in self.mainObj.families:
                 warn("Family %s isn't recognized, expected one of [%s]\n",
                      k, " ".join(self.mainObj.families.keys()))
                 return
@@ -981,19 +1047,21 @@ class Analyzer:
                 except:
                     ok = False
                 if not ok:
-                    warn("keywords were specified, but no keyword_style statement was given,\nlike <<keyword_style CSS_IDENTIFIER => CSS_WORD>>\n")
+                    warn(
+                        "keywords were specified, but no keyword_style statement was given,\nlike <<keyword_style CSS_IDENTIFIER => CSS_WORD>>\n")
                     return
             # Make sure no states put us in dead ends
             nameTable = self.mainObj.nameTable
             nameInfo = self.mainObj.nameInfo
             for state_name in nameTable.keys():
                 state_num = nameTable[state_name]
-                if not nameInfo[state_num].has_key('owningFamily'):
+                if 'owningFamily' not in nameInfo[state_num]:
                     warn("At least one transition moves to undefined state " + state_name +
-                    "\n This state needs to be defined somewhere.\n")
+                         "\n This state needs to be defined somewhere.\n")
                     return
         if self.mainObj.languageName is None:
-            warn("No main language declaration given -- this language needs a name")
+            warn(
+                "No main language declaration given -- this language needs a name")
             return
         return True
 
@@ -1010,9 +1078,9 @@ class Analyzer:
         raise LudditeError(
             'Already specified %s "%s"%s, now specifying "%s"'
             % (attrname, extra_msg, old_val, new_val))
-        
+
     def processTree(self, tree, currFamily='markup'):
-        if not self.mainObj.familyList.has_key(currFamily):
+        if currFamily not in self.mainObj.familyList:
             self.mainObj.familyList[currFamily] = CurrentInfo(currFamily)
         permFamilyInfo = self.mainObj.familyList[currFamily]
         for node in tree:
@@ -1024,16 +1092,20 @@ class Analyzer:
             elif node[0] == 'family':
                 # Stay with names for now
                 currFamily = node[1].lower()
-                self.mainObj.familyList[currFamily] = self.mainObj.familyList.get(currFamily, CurrentInfo(currFamily))
+                self.mainObj.familyList[currFamily] = self.mainObj.familyList.get(
+                    currFamily, CurrentInfo(currFamily))
                 permFamilyInfo = self.mainObj.familyList[currFamily]
                 permFamilyInfo.specified = True
             elif node[0] == 'initial':
-                permFamilyInfo.initialState = permFamilyInfo.initialState or node[1]['name']
+                permFamilyInfo.initialState = permFamilyInfo.initialState or node[
+                    1]['name']
             elif node[0] == 'language':
-                self._assign_once_dups_ok(self.mainObj, 'languageName', node[1])
+                self._assign_once_dups_ok(
+                    self.mainObj, 'languageName', node[1])
             elif node[0] == 'sublanguage':
-                self._assign_once_dups_ok(permFamilyInfo, 'subLanguageName', node[1],
-                                          "for family " + currFamily)
+                self._assign_once_dups_ok(
+                    permFamilyInfo, 'subLanguageName', node[1],
+                    "for family " + currFamily)
             elif node[0] == 'stateBlock':
                 node2 = node[1]
                 stateName = node2['name']
@@ -1042,7 +1114,7 @@ class Analyzer:
                 stateBlock = node2['value']
                 test_assign_entry(self.mainObj.stateTable, stateNum, [])
                 stateTable = self.mainObj.stateTable[stateNum]
-    
+
                 # Variables to track for synthesizing an eof action
                 common_color = None
                 synthesize_eof = True
@@ -1050,27 +1122,29 @@ class Analyzer:
                     if transition[0] != 'transition':
                         raise LudditeError("Expecting 'transition', got %s"
                                            % transition[0])
-                    
+
                     inner_tran = transition[1]
-                    inner_data = { 'type' : inner_tran['type'],
-                                   'value' : inner_tran['value'],
-                                   'token_check' : inner_tran['token_check'],
-                                   }
+                    inner_data = {'type': inner_tran['type'],
+                                  'value': inner_tran['value'],
+                                  'token_check': inner_tran['token_check'],
+                                  }
                     if inner_tran['cmds']:
                         inner_data['cmds'] = inner_tran['cmds']
-                    
+
                     if inner_tran['trans']:
                         inner_data['trans_str'] = inner_tran['trans']
-                        inner_data['trans_num'] = self.mainObj.internStateName(inner_tran['trans'])
-                    
+                        inner_data['trans_num'] = self.mainObj.internStateName(
+                            inner_tran['trans'])
+
                     # Check for synthesizing eof transition
                     curr_color = self._favor_upto_color(inner_tran['cmds'])
                     if curr_color and not isTemplateStateName(stateName):
                         # These are global across all families
-                        if not self.mainObj.holdUniqueStates.has_key(curr_color):
+                        if curr_color not in self.mainObj.holdUniqueStates:
                             self.mainObj.holdUniqueStates[curr_color] = {}
-                        self.mainObj.holdUniqueStates[curr_color][stateName] = None
-                    
+                        self.mainObj.holdUniqueStates[
+                            curr_color][stateName] = None
+
                     if synthesize_eof:
                         if not inner_tran['cmds']:
                             # A transition with no commands doesn't affect
@@ -1085,22 +1159,23 @@ class Analyzer:
                             common_color = curr_color
                         elif common_color != curr_color:
                             synthesize_eof = False
-                        
+
                     stateTable.append(inner_data)
-                    
+
                 if synthesize_eof:
                     if common_color is not None:
-                        inner_data = { 'type' : 'pattern',
-                                       'value' : [r'\z', 0],
-                                       'cmds' : [[ 'paint',
-                                                   { 'type' : 'upto',
-                                                     'value' : common_color},
-                                                    ]],
-                                       }
+                        inner_data = {'type': 'pattern',
+                                      'value': [r'\z', 0],
+                                      'cmds': [['paint',
+                                     {'type': 'upto',
+                                      'value': common_color},
+                                      ]],
+                                      }
                         stateTable.append(inner_data)
                     else:
-                        warn("State %s might need an explicit \\z pattern rule" % (stateName,))
-                
+                        warn("State %s might need an explicit \\z pattern rule" % (
+                            stateName,))
+
             elif node[0] == 'keywordList':
                 permFamilyInfo.keywordList = node[1]
             elif node[0] == 'keywordStyle':
@@ -1118,8 +1193,10 @@ class Analyzer:
                 self.mainObj.languageService_xmlNames[node[0]][1][name] = None
 
     def _favor_upto_color(self, cmds):
-        # Favor the upto-color, but use the include-color if that's all they gave
-        if cmds is None: return None
+        # Favor the upto-color, but use the include-color if that's all they
+        # gave
+        if cmds is None:
+            return None
         color = None
         for cmd in cmds:
             if not isinstance(cmd, (list, tuple)):
@@ -1130,5 +1207,3 @@ class Analyzer:
                 else:
                     color = cmd[1]['value']
         return color
-    
-    

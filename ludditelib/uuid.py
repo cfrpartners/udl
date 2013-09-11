@@ -13,6 +13,7 @@ RESERVED_NCS, RFC_4122, RESERVED_MICROSOFT, RESERVED_FUTURE = [
     'reserved for NCS compatibility', 'specified in RFC 4122',
     'reserved for Microsoft compatibility', 'reserved for future definition']
 
+
 class UUID(object):
     """Instances of the UUID class represent UUIDs as specified in RFC 4122.
     Converting a UUID to a string using str() produces a string in the form
@@ -49,10 +50,12 @@ class UUID(object):
             (time_low, time_mid, time_hi_ver,
              clock_hi_res, clock_low, node) = args
         assert 0 <= time_low < 0x100000000, ValueError('time_low out of range')
-        assert 0 <= time_mid < 1<<16, ValueError('time_mid out of range')
-        assert 0 <= time_hi_ver < 1<<16, ValueError('time_hi_ver out of range')
-        assert 0 <= clock_hi_res < 1<<8, ValueError('clock_hi_res out of range')
-        assert 0 <= clock_low < 1<<8, ValueError('clock_low out of range')
+        assert 0 <= time_mid < 1 << 16, ValueError('time_mid out of range')
+        assert 0 <= time_hi_ver < 1 << 16, ValueError(
+            'time_hi_ver out of range')
+        assert 0 <= clock_hi_res < 1 << 8, ValueError(
+            'clock_hi_res out of range')
+        assert 0 <= clock_low < 1 << 8, ValueError('clock_low out of range')
         assert 0 <= node < 0x1000000000000, ValueError('node out of range')
         self.time_low = time_low
         self.time_mid = time_mid
@@ -143,6 +146,7 @@ class UUID(object):
 
     version = property(get_version, set_version)
 
+
 def unixgetaddr(program):
     """Get the hardware address on a Unix machine."""
     from os import popen
@@ -155,6 +159,7 @@ def unixgetaddr(program):
             addr = words[words.index('ether') + 1]
             return int(addr.replace(':', ''), 16)
 
+
 def wingetaddr(program):
     """Get the hardware address on a Windows machine."""
     from os import popen
@@ -162,6 +167,7 @@ def wingetaddr(program):
         if line.strip().lower().startswith('physical address'):
             addr = line.split(':')[-1].strip()
             return int(addr.replace('-', ''), 16)
+
 
 def getaddr():
     """Get the hardware address as a 48-bit integer."""
@@ -173,6 +179,7 @@ def getaddr():
         if isfile(join(dir, 'ipconfig.exe')):
             return wingetaddr(join(dir, 'ipconfig.exe'))
 
+
 def uuid1():
     """Generate a UUID based on the time and hardware address."""
     from time import time
@@ -181,7 +188,7 @@ def uuid1():
     # 0x01b21dd213814000 is the number of 100-ns intervals between the
     # UUID epoch 1582-10-15 00:00:00 and the Unix epoch 1970-01-01 00:00:00.
     timestamp = int(nanoseconds/100) + 0x01b21dd213814000
-    clock = randrange(1<<16) # don't use stable storage
+    clock = randrange(1 << 16)  # don't use stable storage
     time_low = timestamp & (0x100000000 - 1)
     time_mid = (timestamp >> 32) & 0xffff
     time_hi_ver = (timestamp >> 48) & 0x0fff
@@ -193,6 +200,7 @@ def uuid1():
     uuid.version = 1
     return uuid
 
+
 def uuid3(namespace, name):
     """Generate a UUID from the MD5 hash of a namespace UUID and a name."""
     from hashlib import md5
@@ -202,20 +210,22 @@ def uuid3(namespace, name):
     uuid.version = 3
     return uuid
 
+
 def uuid4():
     """Generate a random UUID."""
     try:
         from os import urandom
     except:
         from random import randrange
-        uuid = UUID(randrange(1<<32), randrange(1<<16), randrange(1<<16),
-                    randrange(1<<8), randrange(1<<8), randrange(1<<48))
+        uuid = UUID(randrange(1 << 32), randrange(1 << 16), randrange(1 << 16),
+                    randrange(1 << 8), randrange(1 << 8), randrange(1 << 48))
     else:
         uuid = UUID(0, 0, 0, 0, 0, 0)
         uuid.bytes = urandom(16)
     uuid.variant = RFC_4122
     uuid.version = 4
     return uuid
+
 
 def uuid5(namespace, name):
     """Generate a UUID from the SHA-1 hash of a namespace UUID and a name."""

@@ -8,17 +8,21 @@
 # Then put into skel/ on Fri Jul  6 14:28:38 PDT 2007
 
 import logging
-import os, sys, re
+import os
+import sys
+import re
 from os.path import join, dirname, exists
 
 from koXMLLanguageBase import KoDjangoTemplateFamilyBase
 
 log = logging.getLogger("koTwigLanguage")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
+
 
 def registerLanguage(registry):
     log.debug("Registering language Twig")
     registry.registerLanguage(KoTwigLanguage())
+
 
 class KoTwigLanguage(KoDjangoTemplateFamilyBase):
     name = "Twig"
@@ -30,7 +34,8 @@ class KoTwigLanguage(KoDjangoTemplateFamilyBase):
     defaultExtension = '.twig'
     searchURL = "http://twig.sensiolabs.org/documentation"
 
-    lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'Twig', 'M': 'HTML', 'CSS': 'CSS'}
+    lang_from_udl_family = {
+        'CSL': 'JavaScript', 'TPL': 'Twig', 'M': 'HTML', 'CSS': 'CSS'}
 
     sample = """{% if latest_poll_list %}
     <ul>

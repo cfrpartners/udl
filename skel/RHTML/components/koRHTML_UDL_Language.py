@@ -1,25 +1,25 @@
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -31,7 +31,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 # Komodo RHTML language service.
@@ -51,7 +51,7 @@ from codeintel2.rubycile import rails_role_from_path
 import scimozindent
 
 log = logging.getLogger("koRHTMLLanguage")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 
 def registerLanguage(registry):
@@ -68,7 +68,8 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
     _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.rhtml'
 
-    lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'RHTML', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Ruby'}
+    lang_from_udl_family = {
+        'CSL': 'JavaScript', 'TPL': 'RHTML', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Ruby'}
 
     sample = """<ul>
 <% @products.each do |p| %>
@@ -90,7 +91,7 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
         percentChar = ord("%")
         if scimoz.getCharAt(currentPos) != percentChar:
             return None
-        prevPos = currentPos - 1 # ascii
+        prevPos = currentPos - 1  # ascii
         if scimoz.getStyleAt(prevPos) != scimoz.SCE_UDL_TPL_OPERATOR:
             return None
         if scimoz.getCharAt(prevPos) != percentChar:
@@ -99,51 +100,55 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
         if scimoz.getStyleAt(prev2Pos) != scimoz.SCE_UDL_TPL_OPERATOR:
             return None
         if scimoz.getCharAt(prev2Pos) != ord("<"):
-            return None        
+            return None
         lineNo = scimoz.lineFromPosition(currentPos)
         closeIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
         if indentStyle == 'smart':
             """
             i<%|% ==>
-            
+
             i<%
             i....<|>
             i%
-            
+
             where "i" denotes the current leading indentation
             """
-            intermediateLineIndentWidth = self._getNextLineIndent(scimoz, lineNo)
+            intermediateLineIndentWidth = self._getNextLineIndent(
+                scimoz, lineNo)
         else:
             """
             i<%|% ==>
-            
+
             i<%
             i<|>
             i%
-            
+
             Note that the indentation of inner attr lines are ignored, even in block-indent mode:
             i<foo
             i........attr="val">|</foo> =>
-            
+
             i<foo
             i........attr="val">
             i</foo>
             """
             intermediateLineIndentWidth = closeIndentWidth
-        
+
         currentEOL = eollib.eol2eolStr[eollib.scimozEOL2eol[scimoz.eOLMode]]
-        textToInsert = currentEOL + scimozindent.makeIndentFromWidth(scimoz, intermediateLineIndentWidth)
-        finalPosn = currentPos + len(textToInsert) #ascii-safe
+        textToInsert = currentEOL + scimozindent.makeIndentFromWidth(
+            scimoz, intermediateLineIndentWidth)
+        finalPosn = currentPos + len(textToInsert)  # ascii-safe
         if allowExtraNewline:
-            textToInsert += currentEOL + scimozindent.makeIndentFromWidth(scimoz, closeIndentWidth)
-        scimoz.addText(len(textToInsert), textToInsert) #ascii-safe
+            textToInsert += currentEOL + \
+                scimozindent.makeIndentFromWidth(scimoz, closeIndentWidth)
+        scimoz.addText(len(textToInsert), textToInsert)  # ascii-safe
         return finalPosn
-    
+
     def computeIndent(self, scimoz, indentStyle, continueComments):
         return self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
 
     def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
-        res = self._doIndentHere(scimoz, indentStyle, continueComments, style_info)
+        res = self._doIndentHere(
+            scimoz, indentStyle, continueComments, style_info)
         if res is None:
             return koHTMLLanguageBase.computeIndent(self, scimoz, indentStyle, continueComments)
         return res
@@ -154,7 +159,8 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
             return koHTMLLanguageBase._keyPressed(self, ch, scimoz, style_info)
         return res
 
-    _startWords = "begin case else elsif ensure for if rescue unless until while".split(" ")
+    _startWords = "begin case else elsif ensure for if rescue unless until while".split(
+        " ")
 
     def _doIndentHere(self, scimoz, indentStyle, continueComments, style_info):
         pos = scimoz.positionBefore(scimoz.currentPos)
@@ -174,7 +180,8 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
         lineStartPos = scimoz.positionFromLine(curLineNo)
         delta, numTags = self._getTagDiffDelta(scimoz, lineStartPos, startPos)
         if delta < 0 and numTags == 1 and curLineNo > 0:
-            didDedent, dedentAmt = self.dedentThisLine(scimoz, curLineNo, startPos)
+            didDedent, dedentAmt = self.dedentThisLine(
+                scimoz, curLineNo, startPos)
             if didDedent:
                 return dedentAmt
             else:
@@ -186,7 +193,7 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
         newIndentWidth = indentWidth + delta * indent
         if newIndentWidth < 0:
             newIndentWidth = 0
-        #qlog.debug("new indent width: %d", newIndentWidth)
+        # qlog.debug("new indent width: %d", newIndentWidth)
         return scimozindent.makeIndentFromWidth(scimoz, newIndentWidth)
 
     def _doKeyPressHere(self, ch, scimoz, style_info):
@@ -203,7 +210,8 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
         lineStartPos = scimoz.positionFromLine(curLineNo)
         delta, numTags = self._getTagDiffDelta(scimoz, lineStartPos, startPos)
         if delta < 0 and numTags == 1 and curLineNo > 0:
-            didDedent, dedentAmt = self.dedentThisLine(scimoz, curLineNo, startPos)
+            didDedent, dedentAmt = self.dedentThisLine(
+                scimoz, curLineNo, startPos)
             if didDedent:
                 return dedentAmt
         # Assume the tag's indent level is fine, so don't let the
@@ -223,7 +231,7 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
             if (styles[i] == scimoz.SCE_UDL_TPL_OPERATOR
                 and styles[i + 1] == scimoz.SCE_UDL_TPL_OPERATOR
                 and chars[i] == '<'
-                and chars[i + 1] == "%"):
+                    and chars[i + 1] == "%"):
                 j = i + 2
                 while (j < lim
                        and styles[j] == scimoz.SCE_UDL_SSL_DEFAULT):
@@ -247,6 +255,7 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
                 i += 1
         return delta, numTags
 
+
 class KoRHTMLLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "RHTML Template Linter"
@@ -256,19 +265,21 @@ class KoRHTMLLinter(object):
         ("category-komodo-linter", 'RHTML'),
     ]
 
-
     def __init__(self):
-        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
-        self._ruby_linter = UnwrapObject(koLintService.getLinterForLanguage("Ruby"))
+        koLintService = components.classes["@activestate.com/koLintService;1"].getService(
+            components.interfaces.koILintService)
+        self._ruby_linter = UnwrapObject(
+            koLintService.getLinterForLanguage("Ruby"))
         self._html_linter = koLintService.getLinterForLanguage("HTML")
-        
+
     _RHTMLMatcher = re.compile(r'''(
                                 (?:<%=?.*?(?:-?%>|$))
                                 |(?:[^<]+|(?:<(?!%)))+ # Other non-RHTML
                                 |.)''',                  # Catchall
-                                re.VERBOSE|re.DOTALL)
+                               re.VERBOSE | re.DOTALL)
 
     _blockTagRE = re.compile(r'(<%)(=?)(.*?)((?:-?%>|$))', re.DOTALL)
+
     def _fixRubyPart(self, text):
         parts = self._RHTMLMatcher.findall(text)
         if not parts:
@@ -284,10 +295,12 @@ class KoRHTMLLinter(object):
                     rubyTextParts.append(self._spaceOutNonNewlines(part))
                 else:
                     emitText = m.group(2) == "="
-                    log.debug("part %d: part:%s, emitText:%r", i, part, emitText)
+                    log.debug(
+                        "part %d: part:%s, emitText:%r", i, part, emitText)
                     rubyTextParts.append(self._spaceOutNonNewlines(m.group(1)))
                     if emitText:
-                        rubyTextParts.append(self._spaceOutNonNewlines(' puts '))
+                        rubyTextParts.append(
+                            self._spaceOutNonNewlines(' puts '))
                     else:
                         rubyTextParts.append(' ')
                     rubyTextParts.append(m.group(3))
@@ -298,12 +311,15 @@ class KoRHTMLLinter(object):
                 rubyTextParts.append(self._spaceOutNonNewlines(part))
             i += 1
         return "".join(rubyTextParts)
-        
+
     _nonNewlineMatcher = re.compile(r'[^\r\n]')
+
     def _spaceOutNonNewlines(self, markup):
         return self._nonNewlineMatcher.sub(' ', markup)
 
-    _tplPatterns = ("RHTML", re.compile('<%='), re.compile(r'%>\s*\Z', re.DOTALL), 'puts(', ');')
+    _tplPatterns = ("RHTML", re.compile('<%='), re.compile(
+        r'%>\s*\Z', re.DOTALL), 'puts(', ');')
+
     def lint(self, request):
         # With the "squelching" the multi-language linter does to pull
         # <% and %>-like tokens out of the lint input stream, there's no
@@ -319,8 +335,9 @@ class KoRHTMLLinter(object):
         rubyText = self._fixRubyPart(text)
         if not rubyText.strip():
             return
-        rubyLintResults = self._resetLines(self._ruby_linter.lint_with_text(request, rubyText),
-                                            text)
+        rubyLintResults = self._resetLines(
+            self._ruby_linter.lint_with_text(request, rubyText),
+            text)
         return rubyLintResults
 
     def _resetLines(self, lintResults, text):
@@ -330,8 +347,9 @@ class KoRHTMLLinter(object):
             try:
                 targetLine = lines[res.lineEnd - 1]
             except IndexError:
-                log.exception("can't index %d lines at %d", len(lines), res.lineEnd - 1)
-                pass # Keep the original lintResult
+                log.exception("can't index %d lines at %d", len(
+                    lines), res.lineEnd - 1)
+                pass  # Keep the original lintResult
             else:
                 if res.columnEnd > len(targetLine):
                     res.columnEnd = len(targetLine)

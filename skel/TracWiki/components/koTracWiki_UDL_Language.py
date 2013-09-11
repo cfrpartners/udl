@@ -7,7 +7,8 @@ import logging
 from koUDLLanguageBase import KoUDLLanguage
 
 log = logging.getLogger("koTracWikiLanguage")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
+
 
 def registerLanguage(registry):
     log.debug("Registering language TracWiki")
@@ -25,7 +26,8 @@ class KoTracWikiLanguage(KoUDLLanguage):
     primary = 0
     _total_string_styles = None
 
-    lang_from_udl_family = {'CSS': name, 'TPL': name, 'M': 'HTML', 'CSL': 'JavaScript', 'SSL': 'Python'}
+    lang_from_udl_family = {
+        'CSS': name, 'TPL': name, 'M': 'HTML', 'CSL': 'JavaScript', 'SSL': 'Python'}
 
     sample = """
 == Level 2 ==
@@ -44,12 +46,11 @@ class KoTracWikiLanguage(KoUDLLanguage):
         if self._total_string_styles is None:
             scin = components.interfaces.ISciMoz
             self._total_string_styles = [scin.SCE_UDL_CSS_DEFAULT,
-                                   scin.SCE_UDL_CSS_COMMENT,
-                                   scin.SCE_UDL_CSS_NUMBER,
-                                   scin.SCE_UDL_CSS_STRING,
-                                   scin.SCE_UDL_CSS_WORD,
-                                   scin.SCE_UDL_CSS_IDENTIFIER,
-                                   scin.SCE_UDL_CSS_OPERATOR,
-                                   ] + KoUDLLanguage.getStringStyles(self)
+                                         scin.SCE_UDL_CSS_COMMENT,
+                                         scin.SCE_UDL_CSS_NUMBER,
+                                         scin.SCE_UDL_CSS_STRING,
+                                         scin.SCE_UDL_CSS_WORD,
+                                         scin.SCE_UDL_CSS_IDENTIFIER,
+                                         scin.SCE_UDL_CSS_OPERATOR,
+                                         ] + KoUDLLanguage.getStringStyles(self)
         return self._total_string_styles
-
