@@ -991,7 +991,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
         fd, filepath = tempfile.mkstemp(suffix=".php")
         try:
-            os.write(fd, info_cmd)
+            os.write(fd, info_cmd.encode('utf-8'))
             os.close(fd)
             argv.append(filepath)
             p = process.ProcessOpen(argv, env=env.get_all_envvars())
@@ -1396,16 +1396,8 @@ TYPE_CLASS = 7
 TYPE_PARENT = 8
 
 
-def _sortByLineCmp(val1, val2):
-    try:
-    # if hasattr(val1, "line") and hasattr(val2, "line"):
-        return cmp(val1.linestart, val2.linestart)
-    except AttributeError:
-        return cmp(val1, val2)
-
-
 def sortByLine(seq):
-    seq.sort(_sortByLineCmp)
+    seq.sort(key=lambda x: getattr(x, 'linestart', x))
     return seq
 
 
